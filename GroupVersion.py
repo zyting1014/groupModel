@@ -61,23 +61,22 @@ def splitTrainTest(df_train, df_test, n1, n2, n3, s1, s2, s3):
 
 # 分群作为新特征 8列
 # example:splitTrainTest2(df_train,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
-def splitTrainTest2(df_train, n1, n2, n3, s1, s2, s3):
-    df_train['seg1'] = 0;
-    df_train['seg2'] = 0;
-    df_train['seg3'] = 0;
-    df_train['seg4'] = 0
-    df_train['seg5'] = 0;
-    df_train['seg6'] = 0;
-    df_train['seg7'] = 0;
-    df_train['seg8'] = 0
-    df_train.loc[(df_train[n1] < s1) & (df_train[n2] < s2) & (df_train[n3] < s3), 'seg1'] = 1
-    df_train.loc[(df_train[n1] < s1) & (df_train[n2] < s2) & (df_train[n3] >= s3), 'seg2'] = 1
-    df_train.loc[(df_train[n1] < s1) & (df_train[n2] >= s2) & (df_train[n3] < s3), 'seg3'] = 1
-    df_train.loc[(df_train[n1] < s1) & (df_train[n2] >= s2) & (df_train[n3] >= s3), 'seg4'] = 1
-    df_train.loc[(df_train[n1] >= s1) & (df_train[n2] < s2) & (df_train[n3] < s3), 'seg5'] = 1
-    df_train.loc[(df_train[n1] >= s1) & (df_train[n2] < s2) & (df_train[n3] >= s3), 'seg6'] = 1
-    df_train.loc[(df_train[n1] >= s1) & (df_train[n2] >= s2) & (df_train[n3] < s3), 'seg7'] = 1
-    df_train.loc[(df_train[n1] >= s1) & (df_train[n2] >= s2) & (df_train[n3] >= s3), 'seg8'] = 1
+def splitTrainTest2(data_origin, n1, n2, n3, s1, s2, s3):
+    data = data_origin.copy(deep=True)
+
+    data['seg1'] = 0; data['seg2'] = 0; data['seg3'] = 0; data['seg4'] = 0
+    data['seg5'] = 0; data['seg6'] = 0; data['seg7'] = 0; data['seg8'] = 0
+
+    data.loc[(data[n1] < s1) & (data[n2] < s2) & (data[n3] < s3), 'seg1'] = 1
+    data.loc[(data[n1] < s1) & (data[n2] < s2) & (data[n3] >= s3), 'seg2'] = 1
+    data.loc[(data[n1] < s1) & (data[n2] >= s2) & (data[n3] < s3), 'seg3'] = 1
+    data.loc[(data[n1] < s1) & (data[n2] >= s2) & (data[n3] >= s3), 'seg4'] = 1
+    data.loc[(data[n1] >= s1) & (data[n2] < s2) & (data[n3] < s3), 'seg5'] = 1
+    data.loc[(data[n1] >= s1) & (data[n2] < s2) & (data[n3] >= s3), 'seg6'] = 1
+    data.loc[(data[n1] >= s1) & (data[n2] >= s2) & (data[n3] < s3), 'seg7'] = 1
+    data.loc[(data[n1] >= s1) & (data[n2] >= s2) & (data[n3] >= s3), 'seg8'] = 1
+
+    return data
 
 
 # 高斯混合模型
@@ -115,8 +114,8 @@ def trainMultiModel(trainList, testList, feature_categorical):
 
 
 def main():
-    # df_train, df_test = parseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadPartData()
+    # df_train, df_test = ParseData.loadData()
     feature_categorical = baseline.getFeatureCategorical(df_train)
     trainList, testList = splitTrainTest(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
                                          'var_jb_1', 20181023, 4.5, 22.5)

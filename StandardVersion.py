@@ -15,11 +15,13 @@ from sklearn import preprocessing
 # 将参数写成字典下形式
 param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
                  'metric': ['auc', 'binary_logloss']}
+# param = {'objective': 'binary', 'learning_rate': .05,'metric': ['auc', 'binary_logloss']}
 
 def proprocessCateory(data, feature_categorical):
     lbl = preprocessing.LabelEncoder()
     for feature in feature_categorical:
         data[feature] = lbl.fit_transform(data[feature].astype(str))
+        data[feature] = data[feature].astype('category')
     return data
 
 def cateToOneHot(df_train, df_test, featureList):
@@ -54,15 +56,14 @@ def getFeatureCategorical(data):
 
 def getTrainTestSample(df_train, df_test, feature_categorical):
     target = 'bad'
-    feature_categorical.append(target)
-    # y_train = pd.get_dummies(df_train, columns=feature_categorical)
-    # X_train = pd.get_dummies(df_test, columns=feature_categorical)
+    # feature_categorical.append(target)
+
+    X_train = df_train.drop(feature_categorical, axis=1).drop(target, axis=1)
+    X_test = df_test.drop(feature_categorical, axis=1).drop(target, axis=1)
     y_train = df_train[target]
     y_test = df_test[target]
-    X_train = df_train.drop(feature_categorical, axis=1)
-    X_test = df_test.drop(feature_categorical, axis=1)
-    # X_train = df_train
-    # X_test = df_test
+
+
     return X_train, y_train, X_test, y_test
 
 
@@ -73,7 +74,9 @@ def trainModel(X_train, y_train, X_test, y_test, round=1000):
     lgb_train = lgb.Dataset(X_train, y_train)
     lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
     print('Start training...')
-    gbm = lgb.train(param, lgb_train, num_boost_round=round, valid_sets=lgb_eval, early_stopping_rounds=50)
+    # print(categorical_feature)
+    gbm = lgb.train(param, lgb_train, num_boost_round=round, valid_sets=lgb_eval,
+                    early_stopping_rounds=50)
     # print('Save model...')
     # gbm.save_model('model.txt')
     print('Start predicting...')
@@ -88,24 +91,51 @@ def featureImportance(gbm):
 
     importance = gbm.feature_importance(importance_type='split')
     feature_name = gbm.feature_name()
-    # for (feature_name,importance) in zip(feature_name,importance):
-    #     print (feature_name,importance)
+    for (feature_name,importance) in zip(feature_name,importance):
+        print (feature_name,importance)
     feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': list(importance)})
     feature_importance = feature_importance.sort_values(by='importance', ascending=False)
-    print(feature_importance.head(10))
+    # print(feature_importance)
     feature_importance.to_csv('feature_importance.csv', index=False)
 
 
+
+def splitTrainTest3(data_origin):
+    data = data_origin.copy(deep=True)
+    featureList = ['var_jb_23','var_jb_28','nasrdw_recd_date']
+    data[featureList].fillna(-99999)
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+    data['seg4'] = 0
+    data['seg5'] = 0
+    data['seg6'] = 0
+
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg1'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] > 20181023), 'seg2'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg3'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg4'] = 1
+    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] <= 20181011), 'seg5'] = 1
+    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] > 20181011), 'seg6'] = 1
+
+    return data_origin
+
+
 def main():
-    df_train, df_test = ParseData.loadPartData()
-    # df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadPartData()
+    df_train, df_test = ParseData.loadData()
+
+    df_train = splitTrainTest3(df_train)
+    df_test = splitTrainTest3(df_test)
 
     feature_categorical = getFeatureCategorical(df_train)
-    df_train = proprocessCateory(df_train, feature_categorical)
-    df_test = proprocessCateory(df_test, feature_categorical)
-    # onehotList = ['var_jb_2','var_jb_3','var_jb_16','var_jb_17']
-    onehotList = ['var_jb_2']
-    df_train, df_test = cateToOneHot(df_train, df_test, onehotList)
+    # df_train = proprocessCateory(df_train, feature_categorical)
+    # df_test = proprocessCateory(df_test, feature_categorical)
 
     X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(X_train, y_train, X_test, y_test)
