@@ -1,10 +1,9 @@
 # coding: utf-8
 import lightgbm as lgb
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-import parseData
+import parseData,Evaluation
+import pandas as pd
 
 # 将参数写成字典下形式
 params = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
@@ -38,19 +37,36 @@ def trainModel(X_train, y_train, X_test, y_test):
     lgb_train = lgb.Dataset(X_train, y_train)
     lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
     print('Start training...')
-    gbm = lgb.train(params, lgb_train, num_boost_round=1000, valid_sets=lgb_eval, early_stopping_rounds=50)
+    gbm = lgb.train(params, lgb_train, num_boost_round=10, valid_sets=lgb_eval, early_stopping_rounds=50)
     print('Save model...')
     # gbm.save_model('model.txt')
     print('Start predicting...')
     y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
     print('The auc score is:', roc_auc_score(y_test, y_pred))
+    return gbm, y_pred
 
+def featureImportance(gbm):
+    plt.figure(figsize=(12, 6))
+    lgb.plot_importance(gbm, max_num_features=10)
+    plt.title("Featurertances")
+    plt.show()
+
+    importance = gbm.feature_importance(importance_type='split')
+    feature_name = gbm.feature_name()
+    # for (feature_name,importance) in zip(feature_name,importance):
+    #     print (feature_name,importance)
+    feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': list(importance)})
+    feature_importance = feature_importance.sort_values(by='importance', ascending=False)
+    print(feature_importance.head(10))
+    feature_importance.to_csv('feature_importance.csv', index=False)
 
 def main():
-    df_train, df_test = parseData.loadData()
+    df_train, df_test = parseData.loadPartData()
     feature_categorical = getFeatureCategorical(df_train)
     X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test,feature_categorical)
-    trainModel(X_train, y_train, X_test, y_test)
+    gbm, y_pred = trainModel(X_train, y_train, X_test, y_test)
+    Evaluation.getKsValue(X_test, y_test, y_pred)
+    featureImportance(gbm)
 
 
 if __name__ == '__main__':
