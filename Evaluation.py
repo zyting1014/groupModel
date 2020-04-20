@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics import roc_auc_score
 
 
-def getKsValue(X_test, y_test, y_pred):
-    df = X_test.copy(deep=True)
+def getAucValue(y_test, y_pred):
+    print('The auc score is:', roc_auc_score(y_test, y_pred))
+
+
+def getKsValue(y_test, y_pred):
+    df = pd.DataFrame()
     df['y_xgb_test'] = y_test
     df['y_xgb_pred'] = y_pred
     ks(df, 'y_xgb_test', 'y_xgb_pred')

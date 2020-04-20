@@ -2,15 +2,16 @@
 import lightgbm as lgb
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-import parseData,Evaluation
+import parseData, Evaluation
 import pandas as pd
+
 """
     未进行分群 一个模型
 """
 
 # 将参数写成字典下形式
-params = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
-          'metric': ['auc', 'binary_logloss']}
+param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
+                 'metric': ['auc', 'binary_logloss']}
 
 
 # 获得类别特征
@@ -22,7 +23,8 @@ def getFeatureCategorical(data):
             feature_categorical.append(column)
     return feature_categorical
 
-def getTrainTestSample(df_train,df_test,feature_categorical):
+
+def getTrainTestSample(df_train, df_test, feature_categorical):
     target = 'bad'
     feature_categorical.append(target)
     # y_train = pd.get_dummies(df_train, columns=feature_categorical)
@@ -35,18 +37,20 @@ def getTrainTestSample(df_train,df_test,feature_categorical):
     # X_test = df_test
     return X_train, y_train, X_test, y_test
 
-def trainModel(X_train, y_train, X_test, y_test):
+
+def trainModel(X_train, y_train, X_test, y_test, round=1000):
     # 创建成lgb特征的数据集格式
     lgb_train = lgb.Dataset(X_train, y_train)
     lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
     print('Start training...')
-    gbm = lgb.train(params, lgb_train, num_boost_round=10, valid_sets=lgb_eval, early_stopping_rounds=50)
-    print('Save model...')
+    gbm = lgb.train(param, lgb_train, num_boost_round=round, valid_sets=lgb_eval, early_stopping_rounds=50)
+    # print('Save model...')
     # gbm.save_model('model.txt')
     print('Start predicting...')
     y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
     print('The auc score is:', roc_auc_score(y_test, y_pred))
     return gbm, y_pred
+
 
 def featureImportance(gbm):
     lgb.plot_importance(gbm, max_num_features=10)
@@ -61,12 +65,14 @@ def featureImportance(gbm):
     print(feature_importance.head(10))
     feature_importance.to_csv('feature_importance.csv', index=False)
 
+
 def main():
-    df_train, df_test = parseData.loadPartData()
+    # df_train, df_test = parseData.loadPartData()
+    df_train, df_test = parseData.loadData()
     feature_categorical = getFeatureCategorical(df_train)
-    X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test,feature_categorical)
+    X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(X_train, y_train, X_test, y_test)
-    Evaluation.getKsValue(X_test, y_test, y_pred)
+    Evaluation.getKsValue(y_test, y_pred)
     featureImportance(gbm)
 
 
