@@ -1,19 +1,15 @@
 # coding: utf-8
+"""
+    查找决策树切分点
+"""
 import pandas as pd
 from sklearn.impute import SimpleImputer as si
 from sklearn import tree
 import pydotplus
 from IPython.display import display,Image
 from sklearn.externals.six import StringIO
-import matplotlib.pyplot as plt
+import parseData
 import os
-
-
-def loadData():
-    # 加载你的数据
-    print('Load data...')
-    df_train = pd.read_csv('D:/zhuyuting/cxqz/task1/归档/data_m2_part.csv')
-    return df_train
 
 def trainTreeRegressor(data, featureList=[]):
     print('Fill nan...')
@@ -46,7 +42,7 @@ def makePicture(x, dtree):
     display(Image(graph.create_png()))
 
 def main():
-    df_train = loadData()
+    df_train,df_test = parseData.loadData()
     x, dtree = trainTreeRegressor(df_train, ['nasrdw_recd_date'])
     makePicture(x, dtree)
 
