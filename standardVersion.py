@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
 import parseData,Evaluation
 import pandas as pd
+"""
+    未进行分群 一个模型
+"""
 
 # 将参数写成字典下形式
 params = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
@@ -46,9 +49,7 @@ def trainModel(X_train, y_train, X_test, y_test):
     return gbm, y_pred
 
 def featureImportance(gbm):
-    plt.figure(figsize=(12, 6))
     lgb.plot_importance(gbm, max_num_features=10)
-    plt.title("Featurertances")
     plt.show()
 
     importance = gbm.feature_importance(importance_type='split')

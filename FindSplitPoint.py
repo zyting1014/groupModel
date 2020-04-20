@@ -1,10 +1,11 @@
 # coding: utf-8
 """
-    查找决策树切分点
+    查找决策树切分点 图显示不出来 复制到jupyter可以显示
 """
 import pandas as pd
 from sklearn.impute import SimpleImputer as si
 from sklearn import tree
+import matplotlib.pyplot as plt
 import pydotplus
 from IPython.display import display,Image
 from sklearn.externals.six import StringIO
@@ -40,9 +41,11 @@ def makePicture(x, dtree):
     # 这是我自己的路径，注意修改你的路径
     os.environ["PATH"] += os.pathsep + 'D:/SE/graphviz-2.38/release/bin/'
     display(Image(graph.create_png()))
+    plt.show()
+
 
 def main():
-    df_train,df_test = parseData.loadData()
+    df_train,df_test = parseData.loadPartData()
     x, dtree = trainTreeRegressor(df_train, ['nasrdw_recd_date'])
     makePicture(x, dtree)
 
