@@ -30,7 +30,7 @@ def cateToOneHot(df_train, df_test, featureList):
     for feature in featureList:
         trainFeatureArray = np.array([df_train[feature]]).T
         testFeatureArray = np.array([df_test[feature]]).T
-        featureArray = np.hstack((trainFeatureArray, testFeatureArray))
+        featureArray = np.vstack((trainFeatureArray, testFeatureArray))
         enc.fit(featureArray)
         trainNewColumn = enc.transform(trainFeatureArray).toarray()
         testNewColumn = enc.transform(testFeatureArray).toarray()
