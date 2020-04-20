@@ -2,8 +2,11 @@
 import lightgbm as lgb
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-import parseData, Evaluation
+import ParseData, Evaluation
 import pandas as pd
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import preprocessing
 
 """
     未进行分群 一个模型
@@ -13,6 +16,31 @@ import pandas as pd
 param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
                  'metric': ['auc', 'binary_logloss']}
 
+def proprocessCateory(data, feature_categorical):
+    lbl = preprocessing.LabelEncoder()
+    for feature in feature_categorical:
+        data[feature] = lbl.fit_transform(data[feature].astype(str))
+    return data
+
+def cateToOneHot(df_train, df_test, featureList):
+    print('将%s转化为one-hot编码，转化前特征数量为%d' % (featureList, df_train.shape[1]))
+    enc = OneHotEncoder()
+    df_train_new = pd.DataFrame()
+    df_test_new = pd.DataFrame()
+    for feature in featureList:
+        trainFeatureArray = np.array([df_train[feature]]).T
+        testFeatureArray = np.array([df_test[feature]]).T
+        featureArray = np.hstack((trainFeatureArray, testFeatureArray))
+        enc.fit(featureArray)
+        trainNewColumn = enc.transform(trainFeatureArray).toarray()
+        testNewColumn = enc.transform(testFeatureArray).toarray()
+
+        df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn)], axis=1)
+        df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn)], axis=1)
+    df_train = pd.concat([df_train, df_train_new], axis=1)
+    df_test = pd.concat([df_test, df_test_new], axis=1)
+    print('转化后特征数量为%s' % (df_train.shape[1]))
+    return df_train, df_test
 
 # 获得类别特征
 def getFeatureCategorical(data):
@@ -40,6 +68,8 @@ def getTrainTestSample(df_train, df_test, feature_categorical):
 
 def trainModel(X_train, y_train, X_test, y_test, round=1000):
     # 创建成lgb特征的数据集格式
+    # print('训练数据维度：%s'%(X_train.shape))
+    # print('测试数据维度：%s' % (X_test.shape))
     lgb_train = lgb.Dataset(X_train, y_train)
     lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
     print('Start training...')
@@ -67,9 +97,16 @@ def featureImportance(gbm):
 
 
 def main():
-    # df_train, df_test = parseData.loadPartData()
-    df_train, df_test = parseData.loadData()
+    df_train, df_test = ParseData.loadPartData()
+    # df_train, df_test = ParseData.loadData()
+
     feature_categorical = getFeatureCategorical(df_train)
+    df_train = proprocessCateory(df_train, feature_categorical)
+    df_test = proprocessCateory(df_test, feature_categorical)
+    # onehotList = ['var_jb_2','var_jb_3','var_jb_16','var_jb_17']
+    onehotList = ['var_jb_2']
+    df_train, df_test = cateToOneHot(df_train, df_test, onehotList)
+
     X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(X_train, y_train, X_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)

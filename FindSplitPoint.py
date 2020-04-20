@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import pydotplus
 from IPython.display import display,Image
 from sklearn.externals.six import StringIO
-import parseData
+import ParseData
 import os
 
 def trainTreeRegressor(data, featureList=[]):
@@ -45,7 +45,7 @@ def makePicture(x, dtree):
 
 
 def main():
-    df_train,df_test = parseData.loadPartData()
+    df_train,df_test = ParseData.loadPartData()
     x, dtree = trainTreeRegressor(df_train, ['nasrdw_recd_date'])
     makePicture(x, dtree)
 
