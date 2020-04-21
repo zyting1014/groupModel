@@ -84,3 +84,4 @@ def descartesGroupNewFeature(data_origin, n1, n2, n3, s1, s2, s3):
     data.loc[(data[n1] >= s1) & (data[n2] >= s2) & (data[n3] >= s3), 'seg8'] = 1
     return data
 
+
