@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
+import  GroupFunc
 
 """
     未进行分群 一个模型
@@ -17,12 +18,15 @@ param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rat
                  'metric': ['auc', 'binary_logloss']}
 # param = {'objective': 'binary', 'learning_rate': .05,'metric': ['auc', 'binary_logloss']}
 
+
+# 将类别特征转为str 这样不用one-hot就可以直接训练 但由于特征稀疏效果不好 故目前不加入30+维特征
 def proprocessCateory(data, feature_categorical):
     lbl = preprocessing.LabelEncoder()
     for feature in feature_categorical:
         data[feature] = lbl.fit_transform(data[feature].astype(str))
         data[feature] = data[feature].astype('category')
     return data
+
 
 def cateToOneHot(df_train, df_test, featureList):
     print('将%s转化为one-hot编码，转化前特征数量为%d' % (featureList, df_train.shape[1]))
@@ -43,6 +47,7 @@ def cateToOneHot(df_train, df_test, featureList):
     df_test = pd.concat([df_test, df_test_new], axis=1)
     print('转化后特征数量为%s' % (df_train.shape[1]))
     return df_train, df_test
+
 
 # 获得类别特征
 def getFeatureCategorical(data):
@@ -91,54 +96,27 @@ def featureImportance(gbm):
 
     importance = gbm.feature_importance(importance_type='split')
     feature_name = gbm.feature_name()
-    for (feature_name,importance) in zip(feature_name,importance):
-        print (feature_name,importance)
+
+    for (name, value) in zip(feature_name, importance):
+        print(name, value)
     feature_importance = pd.DataFrame({'feature_name': feature_name, 'importance': list(importance)})
     feature_importance = feature_importance.sort_values(by='importance', ascending=False)
-    # print(feature_importance)
+    print(feature_importance)
     feature_importance.to_csv('feature_importance.csv', index=False)
-
-
-
-def splitTrainTest3(data_origin):
-    data = data_origin.copy(deep=True)
-    featureList = ['var_jb_23','var_jb_28','nasrdw_recd_date']
-    data[featureList].fillna(-99999)
-
-    data['seg1'] = 0
-    data['seg2'] = 0
-    data['seg3'] = 0
-    data['seg4'] = 0
-    data['seg5'] = 0
-    data['seg6'] = 0
-
-    data_origin.loc[
-        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg1'] = 1
-    data_origin.loc[
-        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] > 20181023), 'seg2'] = 1
-    data_origin.loc[
-        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg3'] = 1
-    data_origin.loc[
-        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg4'] = 1
-    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] <= 20181011), 'seg5'] = 1
-    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] > 20181011), 'seg6'] = 1
-
-    return data_origin
 
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
     df_train, df_test = ParseData.loadData()
 
-    df_train = splitTrainTest3(df_train)
-    df_test = splitTrainTest3(df_test)
+    # 以下两行调用添加分群特征函数 不用可以注释掉
+    df_train = GroupFunc.decisionTreeMethod2(df_train)
+    df_test = GroupFunc.decisionTreeMethod2(df_test)
 
     feature_categorical = getFeatureCategorical(df_train)
-    # df_train = proprocessCateory(df_train, feature_categorical)
-    # df_test = proprocessCateory(df_test, feature_categorical)
 
-    X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
-    gbm, y_pred = trainModel(X_train, y_train, X_test, y_test)
+    x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
+    gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)
     featureImportance(gbm)
 

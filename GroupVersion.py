@@ -1,19 +1,18 @@
 import numpy as np
 from sklearn.metrics import roc_auc_score
-from sklearn.mixture import GaussianMixture as GMM
 import StandardVersion as baseline
 import ParseData
 import Evaluation
 
 """
-    包括多种分群算法的实现
+    实现同时训练多个模型
 """
 
 
 # 分群文件生成 生成8个训练、测试集
-# example:trainList,testList = splitTrainTest
+# example:trainList,testList = descartesGroupDataToList
 # (df_train,df_test,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
-def splitTrainTest(df_train, df_test, n1, n2, n3, s1, s2, s3):
+def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
     df_train_fillnan = df_train.copy()
     df_test_fillnan = df_test.copy()
     df_train_fillnan[n1].fillna(0, inplace=True)
@@ -50,7 +49,7 @@ def splitTrainTest(df_train, df_test, n1, n2, n3, s1, s2, s3):
                 abc(df_test_fillnan, 1, 1, 1)]
 
     trainCount = 0;testCount = 0
-    for i in range(8):
+    for i in range(len(trainList)):
         trainCount += trainList[i].shape[0]
         testCount += testList[i].shape[0]
 
@@ -59,42 +58,9 @@ def splitTrainTest(df_train, df_test, n1, n2, n3, s1, s2, s3):
     return trainList, testList
 
 
-# 分群作为新特征 8列
-# example:splitTrainTest2(df_train,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
-def splitTrainTest2(data_origin, n1, n2, n3, s1, s2, s3):
-    data = data_origin.copy(deep=True)
-
-    data['seg1'] = 0; data['seg2'] = 0; data['seg3'] = 0; data['seg4'] = 0
-    data['seg5'] = 0; data['seg6'] = 0; data['seg7'] = 0; data['seg8'] = 0
-
-    data.loc[(data[n1] < s1) & (data[n2] < s2) & (data[n3] < s3), 'seg1'] = 1
-    data.loc[(data[n1] < s1) & (data[n2] < s2) & (data[n3] >= s3), 'seg2'] = 1
-    data.loc[(data[n1] < s1) & (data[n2] >= s2) & (data[n3] < s3), 'seg3'] = 1
-    data.loc[(data[n1] < s1) & (data[n2] >= s2) & (data[n3] >= s3), 'seg4'] = 1
-    data.loc[(data[n1] >= s1) & (data[n2] < s2) & (data[n3] < s3), 'seg5'] = 1
-    data.loc[(data[n1] >= s1) & (data[n2] < s2) & (data[n3] >= s3), 'seg6'] = 1
-    data.loc[(data[n1] >= s1) & (data[n2] >= s2) & (data[n3] < s3), 'seg7'] = 1
-    data.loc[(data[n1] >= s1) & (data[n2] >= s2) & (data[n3] >= s3), 'seg8'] = 1
-
-    return data
-
-
-# 高斯混合模型
-def getGMMFeature(df_train, df_test, feature_categorical, n_components=4):
-    X_train = df_train.drop(feature_categorical, axis=1).copy().fillna(0)
-    X_test = df_test.drop(feature_categorical, axis=1).copy().fillna(0)
-    gmm = GMM(n_components=n_components).fit(X_train)
-    labels_train = gmm.predict(X_train)
-    labels_test = gmm.predict(X_test)
-    df_train['gmm'] = labels_train.tolist()
-    df_test['gmm'] = labels_test.tolist()
-
-    return df_train, df_test
-
-
 # 训练8个模型
 def trainMultiModel(trainList, testList, feature_categorical):
-    for i in range(8):
+    for i in range(len(trainList)):
         df_train, df_test = trainList[i], testList[i]
         print('%d.训练样本%s，测试样本%s' % (i, df_train.shape, df_test.shape))
 
@@ -117,7 +83,7 @@ def main():
     df_train, df_test = ParseData.loadPartData()
     # df_train, df_test = ParseData.loadData()
     feature_categorical = baseline.getFeatureCategorical(df_train)
-    trainList, testList = splitTrainTest(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
+    trainList, testList = descartesGroupDataToList(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
                                          'var_jb_1', 20181023, 4.5, 22.5)
     all_pred, all_test = trainMultiModel(trainList, testList, feature_categorical)
     Evaluation.getKsValue(all_test, all_pred)
