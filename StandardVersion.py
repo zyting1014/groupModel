@@ -7,7 +7,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
-import  GroupFunc
+from sklearn.externals import joblib
+import GroupFunc
 
 """
     未进行分群 一个模型
@@ -41,7 +42,7 @@ def cateToOneHot(df_train, df_test, featureList):
         trainNewColumn = enc.transform(trainFeatureArray).toarray()
         testNewColumn = enc.transform(testFeatureArray).toarray()
 
-        df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn)], axis=1)
+        df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn,columns=list(range(trainNewColumn.shape[1])))], axis=1)
         df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn)], axis=1)
     df_train = pd.concat([df_train, df_train_new], axis=1)
     df_test = pd.concat([df_test, df_test_new], axis=1)
@@ -49,7 +50,6 @@ def cateToOneHot(df_train, df_test, featureList):
     return df_train, df_test
 
 
-# 获得类别特征
 def getFeatureCategorical(data):
     import pandas.api.types as types
     feature_categorical = []
@@ -104,16 +104,24 @@ def featureImportance(gbm):
     print(feature_importance)
     feature_importance.to_csv('feature_importance.csv', index=False)
 
+def saveModel(model,modelName):
+    joblib.dump(model, modelName)
+
+def loadModel(modelName):
+    return joblib.load(modelName)
+
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
     df_train, df_test = ParseData.loadData()
 
-    # 以下两行调用添加分群特征函数 不用可以注释掉
-    df_train = GroupFunc.decisionTreeMethod2(df_train)
-    df_test = GroupFunc.decisionTreeMethod2(df_test)
-
     feature_categorical = getFeatureCategorical(df_train)
+
+    # 以下两行调用添加分群特征函数 不用可以注释掉
+    # df_train = GroupFunc.decisionTreeMethod2(df_train)
+    # df_test = GroupFunc.decisionTreeMethod2(df_test)
+    # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
+    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical)
 
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
