@@ -40,6 +40,10 @@ def decisionTreeMethod2(data_origin):
     data['seg2'] = 0
     data['seg3'] = 0
     data['seg4'] = 0
+    data['seg5'] = 0
+    data['seg6'] = 0
+    data['seg7'] = 0
+    data['seg8'] = 0
 
     data_origin.loc[
         (data['creditlimitamount_4'] <= 299.5), 'seg1'] = 1
@@ -49,6 +53,28 @@ def decisionTreeMethod2(data_origin):
         (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0), 'seg3'] = 1
     data_origin.loc[
         (data['creditlimitamount_4'] > 329720.0), 'seg4'] = 1
+
+    ##########################
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5) & (data['var_jb_23'] <= 10.5), 'seg1'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5) & (data['var_jb_23'] > 10.5), 'seg2'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 65954.0) & (data['creditlimitamount_4'] > 299.5) & (
+                    data['nasrdw_recd_date'] <= 20181023.0), 'seg3'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 65954.0) & (data['creditlimitamount_4'] > 299.5) & (
+                    data['nasrdw_recd_date'] > 20181023.0), 'seg4'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0) & (
+                    data['nasrdw_recd_date'] <= 20181023.0), 'seg5'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0) & (
+                    data['nasrdw_recd_date'] > 20181023.0), 'seg6'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 329720.0) & (data['creditlimitamount_4'] <= 509500.0), 'seg7'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 329720.0) & (data['creditlimitamount_4'] > 509500.0), 'seg8'] = 1
 
     return data_origin
 

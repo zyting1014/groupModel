@@ -13,14 +13,14 @@ import Evaluation
 # example:trainList,testList = descartesGroupDataToList
 # (df_train,df_test,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
 def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
-    df_train_fillnan = df_train.copy()
-    df_test_fillnan = df_test.copy()
-    df_train_fillnan[n1].fillna(0, inplace=True)
-    df_train_fillnan[n2].fillna(0, inplace=True)
-    df_train_fillnan[n3].fillna(0, inplace=True)
-    df_test_fillnan[n1].fillna(0, inplace=True)
-    df_test_fillnan[n2].fillna(0, inplace=True)
-    df_test_fillnan[n3].fillna(0, inplace=True)
+    df_train_fillnan = df_train.copy(deep=True)
+    df_test_fillnan = df_test.copy(deep=True)
+    df_train_fillnan[n1].fillna(-99999, inplace=True)
+    df_train_fillnan[n2].fillna(-99999, inplace=True)
+    df_train_fillnan[n3].fillna(-99999, inplace=True)
+    df_test_fillnan[n1].fillna(-99999, inplace=True)
+    df_test_fillnan[n2].fillna(-99999, inplace=True)
+    df_test_fillnan[n3].fillna(-99999, inplace=True)
     trainList = []
     testList = []
 
@@ -48,7 +48,8 @@ def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
                 abc(df_test_fillnan, 1, 0, 0), abc(df_test_fillnan, 1, 0, 1), abc(df_test_fillnan, 1, 1, 0),
                 abc(df_test_fillnan, 1, 1, 1)]
 
-    trainCount = 0;testCount = 0
+    trainCount = 0;
+    testCount = 0
     for i in range(len(trainList)):
         trainCount += trainList[i].shape[0]
         testCount += testList[i].shape[0]
@@ -56,6 +57,50 @@ def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
     print('划分前后训练样本总数为分别%d,%d' % (df_train.shape[0], trainCount))
     print('划分前后测试样本总数为分别%d,%d' % (df_test.shape[0], testCount))
     return trainList, testList
+
+
+def decisionTreeGroupDataToList(df_train):
+
+    df_train_fillnan = df_train.copy(deep=True)
+
+    df_train_fillnan['nasrdw_recd_date'].fillna(-99999, inplace=True)
+    df_train_fillnan['var_jb_23'].fillna(-99999, inplace=True)
+    df_train_fillnan['creditlimitamount_4'].fillna(-99999, inplace=True)
+    trainList = []
+
+    trainList.append(
+        df_train.loc[(df_train_fillnan['creditlimitamount_4'] <= 299.5) & (df_train_fillnan['var_jb_23'] <= 10.5)]
+    )
+    trainList.append(
+        df_train.loc[(df_train_fillnan['creditlimitamount_4'] <= 299.5) & (df_train_fillnan['var_jb_23'] > 10.5)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (df_train_fillnan['creditlimitamount_4'] > 299.5) & (df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (df_train_fillnan['creditlimitamount_4'] > 299.5) & (df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (df_train_fillnan['creditlimitamount_4'] <= 509500.0)]
+    )
+    trainList.append(df_train.loc[
+    (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (df_train_fillnan['creditlimitamount_4'] > 509500.0)]
+    )
+
+
+    trainCount = 0;
+
+    for i in range(len(trainList)):
+        trainCount += trainList[i].shape[0]
+
+    print('划分前后训练样本总数为分别%d,%d' % (df_train.shape[0], trainCount))
+    return trainList
 
 
 # 训练8个模型
@@ -80,11 +125,13 @@ def trainMultiModel(trainList, testList, feature_categorical):
 
 
 def main():
-    df_train, df_test = ParseData.loadPartData()
-    # df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadPartData()
+    df_train, df_test = ParseData.loadData()
     feature_categorical = baseline.getFeatureCategorical(df_train)
-    trainList, testList = descartesGroupDataToList(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
-                                         'var_jb_1', 20181023, 4.5, 22.5)
+    # trainList, testList = descartesGroupDataToList(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
+    #                                                'var_jb_1', 20181023, 4.5, 23.5)
+    trainList = decisionTreeGroupDataToList(df_train)
+    testList = decisionTreeGroupDataToList(df_test)
     all_pred, all_test = trainMultiModel(trainList, testList, feature_categorical)
     Evaluation.getKsValue(all_test, all_pred)
     Evaluation.getAucValue(all_test, all_pred)
