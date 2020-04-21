@@ -2,8 +2,10 @@
     分群作为新特征函数 被StandardVersion类调用
 """
 from sklearn.mixture import GaussianMixture as GMM
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
+import os
 
 
 # 决策树划分1
@@ -95,7 +97,7 @@ def getGMMCategoryFeature(df_train, df_test, feature_categorical, n_components=4
     x_test = df_test[feature_categorical].copy().fillna(-99999)
     x_train = StandardVersion.proprocessCateory(x_train, feature_categorical)
     x_test = StandardVersion.proprocessCateory(x_test, feature_categorical)
-    import os
+
     if os.path.exists('model/GMMCategoryFeature.model'):
         print('加载GMMCategoryFeature文件..')
         gmm = StandardVersion.loadModel('GMMCategoryFeature.model')
@@ -111,7 +113,44 @@ def getGMMCategoryFeature(df_train, df_test, feature_categorical, n_components=4
     df_test['gmm'] = labels_test.tolist()
 
     # 转为one-hot编码 4列
-    df_train, df_test = StandardVersion.cateToOneHot(df_train, df_test, ['gmm'])
+    df_train, df_test = StandardVersion.cateToOneHot(df_train, df_test, ['gmm'],'GMMCategoryFeature')
+    return df_train, df_test
+
+
+def getGMMNullFeature(df_train, df_test, feature_categorical, n_components=4):
+    import StandardVersion
+    X_train = df_train.copy()
+    X_test = df_test.copy()
+
+    # 空值为1 非空为0 降维
+    df_train_null = X_train.where(X_train.isnull(), 0).fillna(1).astype(int)
+    df_test_null = X_test.where(X_test.isnull(), 0).fillna(1).astype(int)
+    pca = PCA(n_components=10)
+    df_train_null = pca.fit_transform(df_train_null.values)
+    df_test_null = pca.transform(df_test_null.values)
+    print(df_train_null.shape)
+    print(df_test_null.shape)
+
+
+    if os.path.exists('model/GMMNullFeature.model'):
+        print('加载GMMCategoryFeature文件..')
+        gmm = StandardVersion.loadModel('GMMNullFeature.model')
+    else:
+        print('开始对类别特征训练GMM模型...')
+        gmm = GMM(n_components=n_components).fit(df_train_null)
+
+        print('训练完毕')
+        StandardVersion.saveModel(gmm, 'GMMNullFeature.model')
+
+    labels_train = gmm.predict(df_train_null)
+    labels_test = gmm.predict(df_test_null)
+    df_train['gmmNull'] = labels_train.tolist()
+    df_test['gmmNull'] = labels_test.tolist()
+
+    print(df_train['gmmNull'].head())
+
+    # 转为one-hot编码 4列
+    df_train, df_test = StandardVersion.cateToOneHot(df_train, df_test, ['gmmNull'], 'GMMNullFeature')
     return df_train, df_test
 
 
@@ -147,24 +186,9 @@ def isNullCount(df_train, df_test):
     return df_train, df_test
 
 
-from sklearn.decomposition import PCA
-from sklearn.mixture import GaussianMixture as GMM
 
 
-def getGMMFeature(df_train, df_test, feature_categorical, n_components=4):
-    X_train = df_train.copy()
-    X_test = df_test.copy()
 
-    # 空值为1 非空为0 降维
-    df_train_null = X_train.where(X_train.isnull(), 0).fillna(1).astype(int)
-    df_test_null = X_test.where(X_test.isnull(), 0).fillna(1).astype(int)
-    pca = PCA(n_components=0.95)
-    df_train_null = pca.fit_transform(df_train_null.values)
-    df_test_null = pca.transform(df_test_null.values)
 
-    gmm = GMM(n_components=n_components).fit(df_train_null)
-    labels_train = gmm.predict(df_train_null)
-    labels_test = gmm.predict(df_test_null)
-    return labels_train
 
 

@@ -30,7 +30,7 @@ def proprocessCateory(data, feature_categorical):
     return data
 
 
-def cateToOneHot(df_train, df_test, featureList):
+def cateToOneHot(df_train, df_test, featureList,prefixName = ''):
     print('将%s转化为one-hot编码，转化前特征数量为%d' % (featureList, df_train.shape[1]))
     enc = OneHotEncoder()
     df_train_new = pd.DataFrame()
@@ -43,8 +43,11 @@ def cateToOneHot(df_train, df_test, featureList):
         trainNewColumn = enc.transform(trainFeatureArray).toarray()
         testNewColumn = enc.transform(testFeatureArray).toarray()
 
-        df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn,columns=list(range(trainNewColumn.shape[1])))], axis=1)
-        df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn)], axis=1)
+        columnName = []
+        for i in range(trainNewColumn.shape[1]):
+            columnName.append(prefixName + str(i))
+    df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn,columns=columnName)], axis=1)
+    df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn,columns=columnName)], axis=1)
     df_train = pd.concat([df_train, df_train_new], axis=1)
     df_test = pd.concat([df_test, df_test_new], axis=1)
     print('转化后特征数量为%s' % (df_train.shape[1]))
@@ -124,7 +127,7 @@ def main():
     # df_train = GroupFunc.decisionTreeMethod2(df_train)
     # df_test = GroupFunc.decisionTreeMethod2(df_test)
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
-    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical)
+    df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test, feature_categorical)
 
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
