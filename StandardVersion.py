@@ -9,6 +9,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
 from sklearn.externals import joblib
 import GroupFunc
+import os
 
 """
     未进行分群 一个模型
@@ -105,10 +106,12 @@ def featureImportance(gbm):
     feature_importance.to_csv('feature_importance.csv', index=False)
 
 def saveModel(model,modelName):
-    joblib.dump(model, modelName)
+    path = os.path.join('model',modelName)
+    joblib.dump(model, path)
 
 def loadModel(modelName):
-    return joblib.load(modelName)
+    path = os.path.join('model', modelName)
+    return joblib.load(path)
 
 
 def main():
