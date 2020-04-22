@@ -108,27 +108,41 @@ def featureImportance(gbm):
     print(feature_importance)
     feature_importance.to_csv('feature_importance.csv', index=False)
 
+
 def saveModel(model,modelName):
     path = os.path.join('model',modelName)
     joblib.dump(model, path)
+
 
 def loadModel(modelName):
     path = os.path.join('model', modelName)
     return joblib.load(path)
 
 
+# 集成所有分群生成新特征的函数
+def getNewFeature(df_train, df_test, feature_categorical):
+
+    # 决策树分群1
+    # df_train = GroupFunc.decisionTreeMethod1(df_train)
+    # df_test = GroupFunc.decisionTreeMethod1(df_test)
+    # 决策树分群2
+    # df_train = GroupFunc.decisionTreeMethod2(df_train)
+    # df_test = GroupFunc.decisionTreeMethod2(df_test)
+    # 空值特征数
+    # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
+    # 空/非空特征lda+GMM聚类
+    # df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test)
+    # 类别特征GMM聚类
+    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+
+    return df_train, df_test
+
+
 def main():
     # df_train, df_test = ParseData.loadPartData()
     df_train, df_test = ParseData.loadData()
-
     feature_categorical = getFeatureCategorical(df_train)
-
-    # 以下两行调用添加分群特征函数 不用可以注释掉
-    # df_train = GroupFunc.decisionTreeMethod2(df_train)
-    # df_test = GroupFunc.decisionTreeMethod2(df_test)
-    # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
-    df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test, feature_categorical)
-
+    # df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)

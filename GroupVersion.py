@@ -9,10 +9,55 @@ import Evaluation
 """
 
 
+# 分群文件生成 生成2个训练、测试集
+def descartesGroupDataToListOne(df_train, df_test, n1, s1, onehot=False):
+    df_train_fillnan = df_train.copy(deep=True)
+    df_test_fillnan = df_test.copy(deep=True)
+    df_train_fillnan[n1].fillna(-99999, inplace=True)
+    df_test_fillnan[n1].fillna(-99999, inplace=True)
+    if not onehot:
+        trainList = [df_train[df_train_fillnan[n1] < s1], df_train[df_train_fillnan[n1] >= s1]]
+        testList = [df_test[df_test_fillnan[n1] < s1], df_test[df_test_fillnan[n1] >= s1]]
+    else:
+        trainList = [df_train[df_train_fillnan[n1] == s1], df_train[df_train_fillnan[n1] != s1]]
+        testList = [df_test[df_test_fillnan[n1] == s1], df_test[df_test_fillnan[n1] != s1]]
+
+    return trainList, testList
+
+
+def descartesGroupDataToListTwo(df_train, df_test, n1, s1, c1, cs1, c2, cs2):
+    df_train_fillnan = df_train.copy(deep=True)
+    df_test_fillnan = df_test.copy(deep=True)
+    df_train_fillnan[n1].fillna(-999, inplace=True)
+    df_test_fillnan[n1].fillna(-999, inplace=True)
+    # df_train_fillnan[c1].fillna(-999, inplace=True)
+    # df_test_fillnan[c1].fillna(-999, inplace=True)
+    # df_train_fillnan[c2].fillna(-999, inplace=True)
+    # df_test_fillnan[c2].fillna(-999, inplace=True)
+    trainList = [df_train[(df_train_fillnan[n1] < s1) & (df_train_fillnan[c1] < cs1)],
+                 df_train[(df_train_fillnan[n1] < s1) & (df_train_fillnan[c1] >= cs1)],
+                 df_train[(df_train_fillnan[n1] >= s1) & (df_train_fillnan[c2] < cs2)],
+                 df_train[(df_train_fillnan[n1] >= s1) & (df_train_fillnan[c2] >= cs2)],
+                 ]
+    testList = [df_test[(df_test_fillnan[n1] < s1) & (df_test_fillnan[c1] < cs1)],
+                df_test[(df_test_fillnan[n1] < s1) & (df_test_fillnan[c1] >= cs1)],
+                df_test[(df_test_fillnan[n1] >= s1) & (df_test_fillnan[c2] < cs2)],
+                df_test[(df_test_fillnan[n1] >= s1) & (df_test_fillnan[c2] >= cs2)],
+                ]
+
+    flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
+    trainList = trainList[0] ++ trainList[1] ++ trainList[2] ++ trainList[3]
+    testList = testList[0] ++ testList[1] ++ testList[2] ++ testList[3]
+
+    checkTrainTestList(df_train, df_test, trainList, testList)
+
+    return trainList, testList
+
+
 # 分群文件生成 生成8个训练、测试集
 # example:trainList,testList = descartesGroupDataToList
 # (df_train,df_test,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
-def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
+def descartesGroupDataToListThree(df_train, df_test, n1, n2, n3, s1, s2, s3):
     df_train_fillnan = df_train.copy(deep=True)
     df_test_fillnan = df_test.copy(deep=True)
     df_train_fillnan[n1].fillna(-99999, inplace=True)
@@ -48,19 +93,24 @@ def descartesGroupDataToList(df_train, df_test, n1, n2, n3, s1, s2, s3):
                 abc(df_test_fillnan, 1, 0, 0), abc(df_test_fillnan, 1, 0, 1), abc(df_test_fillnan, 1, 1, 0),
                 abc(df_test_fillnan, 1, 1, 1)]
 
+    checkTrainTestList(df_train, df_test, trainList, testList)
+
+    return trainList, testList
+
+
+def checkTrainTestList(df_train, df_test, trainList, testList):
     trainCount = 0;
     testCount = 0
+    print('分群数量为%d' % (len(trainList)))
     for i in range(len(trainList)):
         trainCount += trainList[i].shape[0]
         testCount += testList[i].shape[0]
 
     print('划分前后训练样本总数为分别%d,%d' % (df_train.shape[0], trainCount))
     print('划分前后测试样本总数为分别%d,%d' % (df_test.shape[0], testCount))
-    return trainList, testList
 
 
 def decisionTreeGroupDataToList(df_train):
-
     df_train_fillnan = df_train.copy(deep=True)
 
     df_train_fillnan['nasrdw_recd_date'].fillna(-99999, inplace=True)
@@ -75,24 +125,33 @@ def decisionTreeGroupDataToList(df_train):
         df_train.loc[(df_train_fillnan['creditlimitamount_4'] <= 299.5) & (df_train_fillnan['var_jb_23'] > 10.5)]
     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (df_train_fillnan['creditlimitamount_4'] > 299.5) & (df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
-    )
+                         (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] > 299.5) & (
+                                 df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
+                     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (df_train_fillnan['creditlimitamount_4'] > 299.5) & (df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
-    )
+                         (df_train_fillnan['creditlimitamount_4'] <= 65954.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] > 299.5) & (
+                                 df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
+                     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
-    )
+                         (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (
+                                 df_train_fillnan['nasrdw_recd_date'] <= 20181023.0)]
+                     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
-    )
+                         (df_train_fillnan['creditlimitamount_4'] > 65954.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] <= 329720.0) & (
+                                 df_train_fillnan['nasrdw_recd_date'] > 20181023.0)]
+                     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (df_train_fillnan['creditlimitamount_4'] <= 509500.0)]
-    )
+                         (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] <= 509500.0)]
+                     )
     trainList.append(df_train.loc[
-    (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (df_train_fillnan['creditlimitamount_4'] > 509500.0)]
-    )
-
+                         (df_train_fillnan['creditlimitamount_4'] > 329720.0) & (
+                                 df_train_fillnan['creditlimitamount_4'] > 509500.0)]
+                     )
 
     trainCount = 0;
 
@@ -103,7 +162,7 @@ def decisionTreeGroupDataToList(df_train):
     return trainList
 
 
-# 训练8个模型
+# 训练多个模型
 def trainMultiModel(trainList, testList, feature_categorical):
     for i in range(len(trainList)):
         df_train, df_test = trainList[i], testList[i]
@@ -130,8 +189,10 @@ def main():
     feature_categorical = baseline.getFeatureCategorical(df_train)
     # trainList, testList = descartesGroupDataToList(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
     #                                                'var_jb_1', 20181023, 4.5, 23.5)
-    trainList = decisionTreeGroupDataToList(df_train)
-    testList = decisionTreeGroupDataToList(df_test)
+    trainList, testList = descartesGroupDataToListTwo(df_train, df_test, 'type_91|个人消费贷款', 0.5,
+                                                      'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # trainList = decisionTreeGroupDataToList(df_train)
+    # testList = decisionTreeGroupDataToList(df_test)
     all_pred, all_test = trainMultiModel(trainList, testList, feature_categorical)
     Evaluation.getKsValue(all_test, all_pred)
     Evaluation.getAucValue(all_test, all_pred)
