@@ -7,6 +7,19 @@ import Evaluation
 """
     实现同时训练多个模型
 """
+# 分群文件生成 生成3个训练、测试集
+def descartesGroupDataToListOneHalf(df_train, df_test, n1, s1, c1, cs1):
+    trainList = [
+        df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & ((df_train[c1] < cs1) | (df_train[c1].isnull()))],
+        df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & (df_train[c1] >= cs1)],
+        df_train[(df_train[n1] >= s1)]
+        ]
+    testList = [
+    df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & ((df_test[c1] < cs1) | (df_test[c1].isnull()))],
+    df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & (df_test[c1] >= cs1)],
+    df_test[(df_test[n1] >= s1)]
+    ]
+    return trainList, testList
 
 
 # 分群文件生成 生成2个训练、测试集
@@ -26,28 +39,19 @@ def descartesGroupDataToListOne(df_train, df_test, n1, s1, onehot=False):
 
 
 def descartesGroupDataToListTwo(df_train, df_test, n1, s1, c1, cs1, c2, cs2):
-    df_train_fillnan = df_train.copy(deep=True)
-    df_test_fillnan = df_test.copy(deep=True)
-    df_train_fillnan[n1].fillna(-999, inplace=True)
-    df_test_fillnan[n1].fillna(-999, inplace=True)
-    # df_train_fillnan[c1].fillna(-999, inplace=True)
-    # df_test_fillnan[c1].fillna(-999, inplace=True)
-    # df_train_fillnan[c2].fillna(-999, inplace=True)
-    # df_test_fillnan[c2].fillna(-999, inplace=True)
-    trainList = [df_train[(df_train_fillnan[n1] < s1) & (df_train_fillnan[c1] < cs1)],
-                 df_train[(df_train_fillnan[n1] < s1) & (df_train_fillnan[c1] >= cs1)],
-                 df_train[(df_train_fillnan[n1] >= s1) & (df_train_fillnan[c2] < cs2)],
-                 df_train[(df_train_fillnan[n1] >= s1) & (df_train_fillnan[c2] >= cs2)],
-                 ]
-    testList = [df_test[(df_test_fillnan[n1] < s1) & (df_test_fillnan[c1] < cs1)],
-                df_test[(df_test_fillnan[n1] < s1) & (df_test_fillnan[c1] >= cs1)],
-                df_test[(df_test_fillnan[n1] >= s1) & (df_test_fillnan[c2] < cs2)],
-                df_test[(df_test_fillnan[n1] >= s1) & (df_test_fillnan[c2] >= cs2)],
-                ]
 
-    flatten = lambda x: [y for l in x for y in flatten(l)] if type(x) is list else [x]
-    trainList = trainList[0] ++ trainList[1] ++ trainList[2] ++ trainList[3]
-    testList = testList[0] ++ testList[1] ++ testList[2] ++ testList[3]
+    trainList = [df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & ((df_train[c1] < cs1) | (df_train[c1].isnull()))],
+                 df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & (df_train[c1] >= cs1)],
+                 df_train[(df_train[n1] >= s1) & ((df_train[c2] < cs2) | (df_train[c2].isnull()))],
+                 df_train[(df_train[n1] >= s1) & (df_train[c2] >= cs2)],
+                 ]
+    testList = [
+        df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & ((df_test[c1] < cs1) | (df_test[c1].isnull()))],
+        df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & (df_test[c1] >= cs1)],
+        df_test[(df_test[n1] >= s1) & ((df_test[c2] < cs2) | (df_test[c2].isnull()))],
+        df_test[(df_test[n1] >= s1) & (df_test[c2] >= cs2)],
+        ]
+
 
     checkTrainTestList(df_train, df_test, trainList, testList)
 
@@ -189,8 +193,12 @@ def main():
     feature_categorical = baseline.getFeatureCategorical(df_train)
     # trainList, testList = descartesGroupDataToList(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
     #                                                'var_jb_1', 20181023, 4.5, 23.5)
-    trainList, testList = descartesGroupDataToListTwo(df_train, df_test, 'type_91|个人消费贷款', 0.5,
-                                                      'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # trainList, testList = descartesGroupDataToListTwo(df_train, df_test, 'type_91|个人消费贷款', 0.5,
+    #                                                   'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # trainList, testList = descartesGroupDataToListTwo(df_train, df_test, 'creditlimitamount_4', 32188.5,
+    #                                                   'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    trainList, testList = descartesGroupDataToListTwo(df_train, df_test, 'var_jb_28', 4.5,
+                                                      'var_jb_23', 27.5, 'nasrdw_recd_date', 20181023)
     # trainList = decisionTreeGroupDataToList(df_train)
     # testList = decisionTreeGroupDataToList(df_test)
     all_pred, all_test = trainMultiModel(trainList, testList, feature_categorical)

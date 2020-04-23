@@ -16,10 +16,9 @@ import os
 """
 
 # 将参数写成字典下形式
-param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
-                 'metric': ['auc', 'binary_logloss']}
-# param = {'objective': 'binary', 'learning_rate': .05,'metric': ['auc', 'binary_logloss']}
-
+# param = {'num_leaves': 150, 'objective': 'binary', 'max_depth': 7, 'learning_rate': .05, 'max_bin': 200,
+#                  'metric': ['auc', 'binary_logloss']}
+param = {'objective': 'binary', 'learning_rate': .05, 'metric': ['auc', 'binary_logloss']}
 
 # 将类别特征转为str 这样不用one-hot就可以直接训练 但由于特征稀疏效果不好 故目前不加入30+维特征
 def proprocessCateory(data, feature_categorical):
@@ -76,6 +75,7 @@ def getTrainTestSample(df_train, df_test, feature_categorical):
     return X_train, y_train, X_test, y_test
 
 
+# 使用原生lgb
 def trainModel(X_train, y_train, X_test, y_test, round=1000):
     # 创建成lgb特征的数据集格式
     # print('训练数据维度：%s'%(X_train.shape))
@@ -90,6 +90,19 @@ def trainModel(X_train, y_train, X_test, y_test, round=1000):
     # gbm.save_model('model.txt')
     print('Start predicting...')
     y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
+    print('The auc score is:', roc_auc_score(y_test, y_pred))
+    return gbm, y_pred
+
+# 使用sklearn接口
+def trainModelClassifier(X_train, y_train, X_test, y_test, round=1000):
+    print('Start training...')
+    gbm = lgb.LGBMClassifier(learning_rate=0.05, n_estimators=round)
+    gbm.fit(X_train, y_train, eval_set=[(X_test, y_test)], eval_metric='auc', early_stopping_rounds=50)
+
+    # print('Save model...')
+    # gbm.save_model('model.txt')
+    print('Start predicting...')
+    y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration_)
     print('The auc score is:', roc_auc_score(y_test, y_pred))
     return gbm, y_pred
 
@@ -128,12 +141,18 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # 决策树分群2
     # df_train = GroupFunc.decisionTreeMethod2(df_train)
     # df_test = GroupFunc.decisionTreeMethod2(df_test)
+    # xgboost分群3
+    # df_train = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # df_test = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # xgboost分群4
+    # df_train = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    # df_test = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
     # df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test)
     # 类别特征GMM聚类
-    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+    # df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
 
     return df_train, df_test
 
@@ -141,8 +160,9 @@ def getNewFeature(df_train, df_test, feature_categorical):
 def main():
     # df_train, df_test = ParseData.loadPartData()
     df_train, df_test = ParseData.loadData()
+
     feature_categorical = getFeatureCategorical(df_train)
-    # df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
+    df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)

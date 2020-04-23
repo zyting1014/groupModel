@@ -90,6 +90,22 @@ def decisionTreeMethod2(data_origin):
     return data_origin
 
 
+def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2):
+    print('in decisionTreeMethod3..')
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+    data['seg4'] = 0
+
+    data.loc[((data[n1] < s1) | (data[n1].isnull())) & ((data[c1] < cs1) | (data[c1].isnull())),'seg1'] = 1
+    data.loc[((data[n1] < s1) | (data[n1].isnull())) & (data[c1] >= cs1),'seg2'] = 1
+    data.loc[(data[n1] >= s1) & ((data[c2] < cs2) | (data[c2].isnull())), 'seg3'] = 1
+    data.loc[(data[n1] >= s1) & (data[c2] >= cs2), 'seg4'] = 1
+
+    return data
+
+
 # 高斯混合模型 用所有变量聚类
 def getGMMCategoryFeature(df_train, df_test, feature_categorical, n_components=4):
     print('in getGMMCategoryFeature..')
