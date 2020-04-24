@@ -20,6 +20,7 @@ import os
 #                  'metric': ['auc', 'binary_logloss']}
 param = {'objective': 'binary', 'learning_rate': .05, 'metric': ['auc', 'binary_logloss']}
 
+
 # 将类别特征转为str 这样不用one-hot就可以直接训练 但由于特征稀疏效果不好 故目前不加入30+维特征
 def proprocessCateory(data, feature_categorical):
     lbl = preprocessing.LabelEncoder()
@@ -29,7 +30,7 @@ def proprocessCateory(data, feature_categorical):
     return data
 
 
-def cateToOneHot(df_train, df_test, featureList,prefixName = ''):
+def cateToOneHot(df_train, df_test, featureList, prefixName=''):
     print('将%s转化为one-hot编码，转化前特征数量为%d' % (featureList, df_train.shape[1]))
     enc = OneHotEncoder()
     df_train_new = pd.DataFrame()
@@ -45,8 +46,8 @@ def cateToOneHot(df_train, df_test, featureList,prefixName = ''):
         columnName = []
         for i in range(trainNewColumn.shape[1]):
             columnName.append(prefixName + str(i))
-    df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn,columns=columnName)], axis=1)
-    df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn,columns=columnName)], axis=1)
+    df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn, columns=columnName)], axis=1)
+    df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn, columns=columnName)], axis=1)
     df_train = pd.concat([df_train, df_train_new], axis=1)
     df_test = pd.concat([df_test, df_test_new], axis=1)
     print('转化后特征数量为%s' % (df_train.shape[1]))
@@ -71,7 +72,6 @@ def getTrainTestSample(df_train, df_test, feature_categorical):
     y_train = df_train[target]
     y_test = df_test[target]
 
-
     return X_train, y_train, X_test, y_test
 
 
@@ -92,6 +92,7 @@ def trainModel(X_train, y_train, X_test, y_test, round=1000):
     y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
     print('The auc score is:', roc_auc_score(y_test, y_pred))
     return gbm, y_pred
+
 
 # 使用sklearn接口
 def trainModelClassifier(X_train, y_train, X_test, y_test, round=1000):
@@ -122,8 +123,8 @@ def featureImportance(gbm):
     feature_importance.to_csv('feature_importance.csv', index=False)
 
 
-def saveModel(model,modelName):
-    path = os.path.join('model',modelName)
+def saveModel(model, modelName):
+    path = os.path.join('model', modelName)
     joblib.dump(model, path)
 
 
@@ -134,7 +135,6 @@ def loadModel(modelName):
 
 # 集成所有分群生成新特征的函数
 def getNewFeature(df_train, df_test, feature_categorical):
-
     # 决策树分群1
     # df_train = GroupFunc.decisionTreeMethod1(df_train)
     # df_test = GroupFunc.decisionTreeMethod1(df_test)
@@ -152,7 +152,7 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # 空/非空特征lda+GMM聚类
     # df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test)
     # 类别特征GMM聚类
-    # df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
 
     return df_train, df_test
 
