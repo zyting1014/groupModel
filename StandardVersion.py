@@ -152,7 +152,7 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # 空/非空特征lda+GMM聚类
     df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 4)
     # 类别特征GMM聚类
-    # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+    df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
 
     # 空值特征数+分箱
     # df_train, df_test = GroupFunc.nullCountcut(df_train, df_test)

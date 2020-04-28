@@ -56,3 +56,44 @@ def importanceFeatureDiffer(model_list, k):
     for one_list in importance_feature_list:
         all_in_feature = set(all_in_feature).intersection(set(one_list))
     print('取前%d重要的特征，分群数为%d,其中%d个特征为最重要特征，占比为%f' % (k, len(model_list), len(all_in_feature), len(all_in_feature) / k))
+
+
+# 与单模型woe不同 分群woe是将所有数据混在一起 找到最优分箱点 再分开来计算woe
+# 传入划分完毕的数据集合 和绘制曲线的重要特征名称
+# 源函数来自信用评分卡
+def multiWoe(group_list, feature_name, n=10):
+    def drawWoeCurve():
+        # 绘制woe曲线
+        plt.title('woe curve')
+        for item in woe_list:
+            x = range(1, len(woe_list[0]) + 1)
+            plt.plot(x, item)
+        plt.xlabel('%s等频分箱占比' % feature_name)
+        plt.ylabel('woe值')
+        plt.show()
+        plt.savefig('%s等频分箱占比.png' % feature_name)
+
+    # 等频分箱 这里没有卡方分箱 因为不用那么麻烦 而且很多变量也分不出来 数据量太大 卡方是协方差制类的 就看个大概趋势
+    group_list2 = group_list.copy()
+    for i, group in enumerate(group_list2):
+        group['model_num'] = i
+    flatten_data = group_list[0]
+    for i in range(1, len(group_list)):
+        flatten_data = pd.concat([flatten_data, group_list[i]], axis=0)
+
+    flatten_data['bin_num'] = pd.qcut(flatten_data[feature_name], n)
+
+    woe_list = []
+    each_model = flatten_data.groupby(['model_num'], as_index=True)
+    for i, data in each_model:
+        print(data)
+        good = data.bad.sum()
+        bad = data.bad.count() - good
+        group = data.groupby('bin_num', as_index=True)
+        each_woe = []
+        for j, each_group in group:
+            rate = each_group.bad.mean()
+            woe = np.log((rate / good) / ((1 - rate) / bad))
+            each_woe.append(woe)
+        woe_list.append(each_woe)
+    drawWoeCurve()
