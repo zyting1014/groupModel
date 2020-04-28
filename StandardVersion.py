@@ -2,7 +2,7 @@
 import lightgbm as lgb
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
-import ParseData, Evaluation
+import ParseData, Evaluation, EvaluateSegmentation
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
@@ -30,28 +30,28 @@ def proprocessCateory(data, feature_categorical):
     return data
 
 
-def cateToOneHot(df_train, df_test, featureList, prefixName=''):
-    print('将%s转化为one-hot编码，转化前特征数量为%d' % (featureList, df_train.shape[1]))
+def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
+    print('将%s转化为one-hot编码，转化前特征数量为%d' % (feature_list, df_train.shape[1]))
     enc = OneHotEncoder()
     df_train_new = pd.DataFrame()
     df_test_new = pd.DataFrame()
-    for feature in featureList:
-        trainFeatureArray = np.array([df_train[feature]]).T
-        testFeatureArray = np.array([df_test[feature]]).T
-        featureArray = np.vstack((trainFeatureArray, testFeatureArray))
+    for feature in feature_list:
+        train_feature_array = np.array([df_train[feature]]).T
+        test_feature_array = np.array([df_test[feature]]).T
+        featureArray = np.vstack((train_feature_array, test_feature_array))
         enc.fit(featureArray)
-        trainNewColumn = enc.transform(trainFeatureArray).toarray()
-        testNewColumn = enc.transform(testFeatureArray).toarray()
+        train_new_column = enc.transform(train_feature_array).toarray()
+        test_new_column = enc.transform(test_feature_array).toarray()
 
-        columnName = []
-        for i in range(trainNewColumn.shape[1]):
-            columnName.append(prefixName + str(i))
-    df_train_new = pd.concat([df_train_new, pd.DataFrame(trainNewColumn, columns=columnName)], axis=1)
-    df_test_new = pd.concat([df_test_new, pd.DataFrame(testNewColumn, columns=columnName)], axis=1)
+        column_name = []
+        for i in range(train_new_column.shape[1]):
+            column_name.append(prefix_name + str(i))
+    df_train_new = pd.concat([df_train_new, pd.DataFrame(train_new_column, columns=column_name)], axis=1)
+    df_test_new = pd.concat([df_test_new, pd.DataFrame(test_new_column, columns=column_name)], axis=1)
     df_train = pd.concat([df_train, df_train_new], axis=1)
     df_test = pd.concat([df_test, df_test_new], axis=1)
     print('转化后特征数量为%s' % (df_train.shape[1]))
-    return df_train, df_test
+    return df_train, df_test, column_name
 
 
 def getFeatureCategorical(data):
@@ -136,35 +136,38 @@ def loadModel(modelName):
 # 集成所有分群生成新特征的函数
 def getNewFeature(df_train, df_test, feature_categorical):
     # 决策树分群1
-    # df_train = GroupFunc.decisionTreeMethod1(df_train)
-    # df_test = GroupFunc.decisionTreeMethod1(df_test)
+    # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train)
+    # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test)
     # 决策树分群2
-    # df_train = GroupFunc.decisionTreeMethod2(df_train)
-    # df_test = GroupFunc.decisionTreeMethod2(df_test)
+    # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train)
+    # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test)
     # xgboost分群3
-    # df_train = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
-    # df_test = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
     # xgboost分群4
-    # df_train = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
-    # df_test = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
-    # df_train, df_test = GroupFunc.getGMMNullFeature(df_train, df_test)
+    df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 4)
     # 类别特征GMM聚类
-    df_train, df_test = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+    # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
 
+    # 空值特征数+分箱
+    # df_train, df_test = GroupFunc.nullCountcut(df_train, df_test)
     return df_train, df_test
 
 
 def main():
-    # df_train, df_test = ParseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadPartData()
+    # df_train, df_test = ParseData.loadData()
 
     feature_categorical = getFeatureCategorical(df_train)
     df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
+    EvaluateSegmentation.saveMultiFeatureImportance([gbm, gbm, gbm])
     Evaluation.getKsValue(y_test, y_pred)
     featureImportance(gbm)
 
