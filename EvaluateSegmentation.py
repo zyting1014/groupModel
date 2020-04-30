@@ -27,6 +27,7 @@ def generateMultiImportance(model_list, strategy_name):
 
 
 def saveMultiFeatureImportance(model_list, strategy_name='default'):
+    print('评估：进入特征重要性绘图函数..')
     img_name_list = generateMultiImportance(model_list, strategy_name)
     r = int(len(model_list) + 1 / 2)
     c = 2
@@ -42,7 +43,8 @@ def saveMultiFeatureImportance(model_list, strategy_name='default'):
 
 
 # 不同前k特征重要性差异 平均重合 / k
-def importanceFeatureDiffer(model_list, k):
+def importanceFeatureDiffer(model_list, k=10):
+    print('评估：进入不同前k特征重要性差异函数..')
     importance_feature_list = []
     for model in model_list:
         feature_name = model.feature_name()
@@ -61,6 +63,7 @@ def importanceFeatureDiffer(model_list, k):
 # 与单模型woe不同 分群woe是将所有数据混在一起 找到最优分箱点 再分开来计算woe
 # 传入划分完毕的数据集合 和绘制曲线的重要特征名称
 def multiWoe(group_list, feature_name, n=10):
+    print('评估：进入woe曲线绘制函数..')
     def drawWoeCurve():
         # 绘制woe曲线
         plt.title('woe curve')
@@ -100,3 +103,8 @@ def multiWoe(group_list, feature_name, n=10):
         woe_list.append(each_woe)
     print('正在绘制woe曲线...')
     drawWoeCurve()
+
+
+def main(model_list):
+    saveMultiFeatureImportance(model_list, 'test')
+    importanceFeatureDiffer(model_list)

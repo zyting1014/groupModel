@@ -38,8 +38,8 @@ def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
     for feature in feature_list:
         train_feature_array = np.array([df_train[feature]]).T
         test_feature_array = np.array([df_test[feature]]).T
-        featureArray = np.vstack((train_feature_array, test_feature_array))
-        enc.fit(featureArray)
+        feature_array = np.vstack((train_feature_array, test_feature_array))
+        enc.fit(feature_array)
         train_new_column = enc.transform(train_feature_array).toarray()
         test_new_column = enc.transform(test_feature_array).toarray()
 
