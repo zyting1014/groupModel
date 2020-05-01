@@ -43,7 +43,7 @@ def saveMultiFeatureImportance(model_list, strategy_name='default'):
 
 
 # 不同前k特征重要性差异 平均重合 / k
-def importanceFeatureDiffer(model_list, k=10):
+def importanceFeatureDiffer(model_list, k=20):
     print('评估：进入不同前k特征重要性差异函数..')
     importance_feature_list = []
     for model in model_list:
@@ -107,4 +107,5 @@ def multiWoe(group_list, feature_name, n=10):
 
 def main(model_list):
     saveMultiFeatureImportance(model_list, 'test')
-    importanceFeatureDiffer(model_list)
+    importanceFeatureDiffer(model_list, 10)
+    importanceFeatureDiffer(model_list, 20)

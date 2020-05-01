@@ -47,22 +47,23 @@ def descartesGroupDataToListOneHalf(df_train, df_test, n1, s1, c1, cs1):
 
 # 分群文件生成 生成4个训练、测试集
 def treeGroupDataToListTwo(df_train, df_test, n1, s1, c1, cs1, c2, cs2):
-    trainList = [
+    print('in treeGroupDataToListTwo..')
+    train_list = [
         df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & ((df_train[c1] < cs1) | (df_train[c1].isnull()))],
         df_train[((df_train[n1] < s1) | (df_train[n1].isnull())) & (df_train[c1] >= cs1)],
         df_train[(df_train[n1] >= s1) & ((df_train[c2] < cs2) | (df_train[c2].isnull()))],
         df_train[(df_train[n1] >= s1) & (df_train[c2] >= cs2)],
     ]
-    testList = [
+    test_list = [
         df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & ((df_test[c1] < cs1) | (df_test[c1].isnull()))],
         df_test[((df_test[n1] < s1) | (df_test[n1].isnull())) & (df_test[c1] >= cs1)],
         df_test[(df_test[n1] >= s1) & ((df_test[c2] < cs2) | (df_test[c2].isnull()))],
         df_test[(df_test[n1] >= s1) & (df_test[c2] >= cs2)],
     ]
 
-    checkTrainTestList(df_train, df_test, trainList, testList)
+    checkTrainTestList(df_train, df_test, train_list, test_list)
 
-    return trainList, testList
+    return train_list, test_list
 
 
 # 分群文件生成 生成8个训练、测试集
@@ -184,7 +185,16 @@ def transSampleToList(df_train, df_test, feature_categorical):
     # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test)
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
-    df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 6)
+    # df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 2)
+    # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
+
+    df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
+    df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
+
+    df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+
+    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
     train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
     # df_train, df_test, column_name = GroupFunc.nullCountcut(df_train, df_test)

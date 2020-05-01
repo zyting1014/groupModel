@@ -9,17 +9,19 @@ from scipy import stats
 import numpy as np
 import pandas as pd
 import os, sys
+import Tools
 
 
 # 决策树划分1 特定策略实现（决策树）
-def decisionTreeMethod1(data_origin):
+def decisionTreeMethod1(data_origin, is_segmentation=True):
     print('in decisionTreeMethod1..')
     column_name = []
     for i in range(6):
         column_name.append('seg%d' % (i + 1))
     data = data_origin.copy(deep=True)
     feature_list = ['var_jb_23', 'var_jb_28', 'nasrdw_recd_date']
-    data = data[feature_list].fillna(-99999)
+    if is_segmentation:
+        data = data[feature_list].fillna(-99999)
 
     data['seg1'] = 0
     data['seg2'] = 0
@@ -43,14 +45,15 @@ def decisionTreeMethod1(data_origin):
 
 
 # 决策树划分2 特定策略实现（决策树）
-def decisionTreeMethod2(data_origin):
+def decisionTreeMethod2(data_origin, is_segmentation=True):
     print('in decisionTreeMethod2..')
     column_name = []
-    for i in range(12):
+    for i in range(4):
         column_name.append('seg%d' % (i + 1))
     data = data_origin.copy(deep=True)
-    featureList = ['nasrdw_recd_date', 'var_jb_23', 'creditlimitamount_4']
-    data[featureList].fillna(-99999)
+    feature_list = ['nasrdw_recd_date', 'var_jb_23', 'creditlimitamount_4']
+    if is_segmentation:
+        data[feature_list] = data[feature_list].fillna(-99999)
 
     data['seg1'] = 0
     data['seg2'] = 0
@@ -100,7 +103,7 @@ def decisionTreeMethod2(data_origin):
 
 
 # 决策树划分 分为4个群
-def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2):
+def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2, is_segmentation=True):
     print('in decisionTreeMethod3..')
     column_name = []
     for i in range(4):
@@ -120,24 +123,13 @@ def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2):
 
 
 # 高斯混合模型 用所有变量/类别变量聚类
-def getGMMCategoryFeature(df_train, df_test, feature_categorical, n_components=4):
+def getGMMCategoryFeature(df_train, df_test, n_components=4):
     print('in getGMMCategoryFeature..')
     import StandardVersion
+    feature_categorical = Tools.feature_categorical
     print(feature_categorical)
 
-    li = ["nasrdw_recd_date", "var_jb_20", "var_jb_21", "var_jb_24", "var_jb_28", "var_jb_33", "var_jb_34", "var_jb_40",
-          "var_jb_75", "var_jb_76", "var_jb_79", "var_jb_88", "var_jb_89", "var_jb_91", "var_jb_92",
-          "curroverdueamount_3", "creditlimitamount_4", "balance", "remainpaymentcyc", "scheduledpaymentamount_4",
-          "actualpaymentamount_4", "curroverduecyc_4", "curroverdueamount_4", "overdue31to60amount_7",
-          "overdue61to90amount_7", "overdue91to180amount_7", "creditlimitamount", "overdueover180amount_8",
-          "latest5yearoverduebeginmonth", "latest5yearoverdueendmonth", "var_jb_4_O", "guaranteetype_3_1|质押（含保证金）",
-          "guaranteetype_3_3|保证", "currency_3_澳门元", "financetype_3_住房储蓄银行", "financetype_3_外资银行", "paymentrating_02|周",
-          "guaranteetype_4_4|信用/免担保", "type_91|个人消费贷款", "financetype_4_住房公积金管理中心", "financetype_4_消费金融有限公司",
-          "class5state_5|损失", "var_jb_48_专升本", "var_jb_48_博士研究生", "var_jb_48_夜大电大函大普通班", "var_jb_55_不详",
-          "var_jb_55_夜大学", "var_jb_47_全日制", "var_jb_47_夜大学", "var_jb_47_研究生", "var_jb_54_全日制", "var_jb_54_夜大学",
-          "var_jb_54_研究生", "guaranteetype_1|质押（含保证金）", "guaranteetype_6|组合（不含保证）", "state_3|止付", "state_5|呆帐",
-          "var_jb_39_B", "var_jb_39_D", "var_jb_39_K", "var_jb_39_L", "var_jb_93_Z"]
-    gmm_list = feature_categorical + li
+    gmm_list = feature_categorical + Tools.iv_more_than_point_one
     print('特征数量：%d' % (len(gmm_list)))
 
     x_train = df_train[gmm_list].copy().fillna(-99999)
@@ -262,13 +254,110 @@ def getKmeansNullFeature(df_train, df_test, n_components=4):
 
 # k-means 所有变量 平滑处理后 直接聚类
 def getKmeansAllFeature(df_train, df_test, n_components=4):
-    print('in %s'% sys._getframe().f_code.co_name)
+    import StandardVersion
+    print('in %s' % sys._getframe().f_code.co_name)
 
-    return 0
+    feature_categorical = Tools.feature_categorical
+    df_train_smooth = df_train.copy()
+    df_test_smooth = df_test.copy()
 
-# k-means 所有变量 进行pca降维后 进行聚类
-def getKmeansAllFeaturePca(df_train, df_test, n_components=4):
-    return 0
+    # 获得要提取的特征列
+    kmeans_list = Tools.iv_more_than_point_one + feature_categorical
+    df_train_smooth = df_train_smooth[kmeans_list]
+    df_test_smooth = df_test_smooth[kmeans_list]
+
+    # 缺失值处理 类别特征str化 平滑处理
+    df_train_smooth = df_train_smooth.fillna(-99999)
+    df_test_smooth = df_test_smooth.fillna(-99999)
+    df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
+    df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+
+
+    # 开始kmeans训练
+    if os.path.exists('model/KmeansAllFeature%d.model' % n_components):
+        print('加载KmeansAllFeature文件..')
+        kmeans = StandardVersion.loadModel('KmeansAllFeature%d.model' % n_components)
+    else:
+        print('开始训练kmeans模型..')
+        kmeans = KMeans(n_clusters=n_components).fit(df_train_smooth)
+        print('训练完毕')
+        StandardVersion.saveModel(kmeans, 'KmeansAllFeature%d.model' % n_components)
+
+    labels_train = kmeans.predict(df_train_smooth)
+    labels_test = kmeans.predict(df_test_smooth)
+    df_train['KmeansAll'] = labels_train.tolist()
+    df_test['KmeansAll'] = labels_test.tolist()
+
+    print(df_train['KmeansAll'].head())
+
+    # 转为one-hot编码 4列
+    df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['KmeansAll'],
+                                                                  'KmeansAllFeature')
+
+    return df_train, df_test, column_name
+
+
+def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
+    import StandardVersion
+    print('in %s' % sys._getframe().f_code.co_name)
+
+    feature_categorical = Tools.feature_categorical
+    df_train_smooth = df_train.copy()
+    df_test_smooth = df_test.copy()
+
+    # 获得要提取的特征列
+    kmeans_list = Tools.iv_more_than_point_one + feature_categorical
+    df_train_smooth = df_train_smooth[kmeans_list]
+    df_test_smooth = df_test_smooth[kmeans_list]
+
+    # 缺失值处理 类别特征str化 平滑处理
+    df_train_smooth = df_train_smooth.fillna(-99999)
+    df_test_smooth = df_test_smooth.fillna(-99999)
+    df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
+    df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+
+    # PCA降维
+    # 开始pca训练
+    if os.path.exists('model/PCAAllFeature.model'):
+        print('PCAAllFeature..')
+        pca = StandardVersion.loadModel('PCAAllFeature.model')
+    else:
+        pca = PCA(0.95)
+        pca.fit(df_train_smooth.values)
+        StandardVersion.saveModel(pca, 'PCAAllFeature.model')
+
+    df_train_smooth = pca.transform(df_train_smooth)
+    df_test_smooth = pca.transform(df_test_smooth)
+
+
+    # 开始kmeans训练
+    if os.path.exists('model/KmeansAllFeaturePCA%d.model' % n_components):
+        print('加载KmeansAllFeature文件..')
+        kmeans = StandardVersion.loadModel('KmeansAllFeaturePCA%d.model' % n_components)
+    else:
+        print('开始训练kmeans模型..')
+        kmeans = KMeans(n_clusters=n_components).fit(df_train_smooth)
+        print('训练完毕')
+        StandardVersion.saveModel(kmeans, 'KmeansAllFeaturePCA%d.model' % n_components)
+
+    labels_train = kmeans.predict(df_train_smooth)
+    labels_test = kmeans.predict(df_test_smooth)
+    df_train['KmeansAllPCA'] = labels_train.tolist()
+    df_test['KmeansAllPCA'] = labels_test.tolist()
+
+    print(df_train['KmeansAllPCA'].head())
+
+    # 转为one-hot编码 4列
+    df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['KmeansAllPCA'],
+                                                                  'KmeansAllFeaturePCA')
+
+    return df_train, df_test, column_name
+
+
 
 
 # 笛卡尔分群作为新特征 8列
