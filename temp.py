@@ -198,6 +198,7 @@ def transSampleToList(df_train, df_test, feature_categorical):
     # df_train, df_test, column_name = GroupFunc.nullCountcut(df_train, df_test)
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
+
     df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 6)
     train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
