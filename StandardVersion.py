@@ -140,11 +140,11 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train)
     # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test)
     # 决策树分群2
-    df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
-    df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
+    # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
+    # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
     # xgboost分群3
-    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
-    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
     # # xgboost分群4
     # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
     # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)

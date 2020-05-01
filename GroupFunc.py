@@ -299,6 +299,7 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     return df_train, df_test, column_name
 
 
+# 先用pca降维 再进行getKmeansAllFeature方法
 def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
     import StandardVersion
     print('in %s' % sys._getframe().f_code.co_name)
@@ -358,8 +359,6 @@ def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
     return df_train, df_test, column_name
 
 
-
-
 # 笛卡尔分群作为新特征 8列
 # example:descartesGroupNewFeature(df_train,'nasrdw_recd_date','var_jb_28','var_jb_1',20181023,4.5,22.5)
 def descartesGroupNewFeature(data_origin, n1, n2, n3, s1, s2, s3):
@@ -401,6 +400,7 @@ def isNullCount(df_train, df_test):
 
 # 按照缺失值个数分箱 分成多个群体
 def nullCountcut(df_train, df_test):
+    print('in %s' % sys._getframe().f_code.co_name)
     import StandardVersion
     df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
     df_test['nunNum'] = df_test.isnull().sum(axis=1).tolist()
@@ -410,11 +410,8 @@ def nullCountcut(df_train, df_test):
     df_test['null_count'] = fenxiang(df_test, 'nunNum', x1_cut)
 
     # 转为one-hot编码 4列
-    # df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['null_count'], 'null_seg')
-    # return df_train, df_test, column_name
-
-    return df_train, df_test
-
+    df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['null_count'], 'null_seg')
+    return df_train, df_test, column_name
 
 # 单变量iv, cut, woe的计算
 def mono_bin(Y, X, n=4):

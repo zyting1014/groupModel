@@ -199,7 +199,7 @@ def transSampleToList(df_train, df_test, feature_categorical):
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
 
-    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 6)
+    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
     train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
     return train_list, test_list

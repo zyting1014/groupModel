@@ -107,5 +107,6 @@ def multiWoe(group_list, feature_name, n=10):
 
 def main(model_list):
     saveMultiFeatureImportance(model_list, 'test')
+    importanceFeatureDiffer(model_list, 5)
     importanceFeatureDiffer(model_list, 10)
     importanceFeatureDiffer(model_list, 20)
