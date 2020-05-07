@@ -34,6 +34,7 @@ def loadOOTData():
     print('Load oot data...')
     global TYPE
     TYPE = 'OOT'
+    print('系统为%s系统..' % platform.system())
     if platform.system() == 'Windows':
         df_train = pd.read_csv('D:/zhuyuting/cxqz/task1/归档/data_m2_oot.csv')
         df_test = pd.read_csv('D:/zhuyuting/cxqz/task1/归档/data_reserved2_oot.csv')
