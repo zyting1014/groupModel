@@ -188,8 +188,8 @@ def transSampleToList(df_train, df_test, feature_categorical):
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
     # df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 2)
-    df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
-    df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
+    # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
+    # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
 
     # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5,
     #                                                       'var_jb_40', 0.5)
@@ -208,7 +208,8 @@ def transSampleToList(df_train, df_test, feature_categorical):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadOOTData()
     feature_categorical = baseline.getFeatureCategorical(df_train)
 
     train_list, test_list = transSampleToList(df_train, df_test, feature_categorical)

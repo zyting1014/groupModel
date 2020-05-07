@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
-from sklearn.externals import joblib
 import GroupFunc
 import os
 
@@ -79,8 +78,8 @@ def getTrainTestSample(df_train, df_test, feature_categorical):
 # 使用原生lgb
 def trainModel(X_train, y_train, X_test, y_test, round=1000):
     # 创建成lgb特征的数据集格式
-    # print('训练数据维度：%s'%(X_train.shape))
-    # print('测试数据维度：%s' % (X_test.shape))
+    print(X_train.shape)
+    print(X_test.shape)
     lgb_train = lgb.Dataset(X_train, y_train)
     lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)
     print('Start training...')
@@ -124,30 +123,22 @@ def featureImportance(gbm):
     feature_importance.to_csv('feature_importance.csv', index=False)
 
 
-def saveModel(model, modelName):
-    path = os.path.join('model', modelName)
-    joblib.dump(model, path)
-
-
-def loadModel(modelName):
-    path = os.path.join('model', modelName)
-    return joblib.load(path)
-
-
 # 集成所有分群生成新特征的函数
 def getNewFeature(df_train, df_test, feature_categorical):
     # 决策树分群1
-    # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train)
-    # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test)
+    # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train, False)
+    # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test, False)
     # 决策树分群2
     # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
     # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
     # xgboost分群3
-    df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
-    df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40', 0.5)
+    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5,
+    #                                                       'var_jb_40', 0.5)
+    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40',
+    #                                                      0.5)
     # # xgboost分群4
-    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
-    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
@@ -165,7 +156,8 @@ def getNewFeature(df_train, df_test, feature_categorical):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadOOTData()
 
     feature_categorical = getFeatureCategorical(df_train)
     df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)

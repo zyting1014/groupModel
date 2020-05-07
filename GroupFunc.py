@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import os, sys
 import Tools
+import ParseData
 
 
 # 决策树划分1 特定策略实现（决策树）
@@ -139,14 +140,14 @@ def getGMMCategoryFeature(df_train, df_test, n_components=4):
 
     feature_num = x_train.shape[1]
 
-    if os.path.exists('model/GMMCategoryFeature%d_%d.model' % (n_components, feature_num)):
+    if ParseData.existModel('GMMCategoryFeature%d_%d.model' % (n_components, feature_num)):
         print('加载GMMCategoryFeature文件..')
-        gmm = StandardVersion.loadModel('GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
+        gmm = ParseData.loadModel('GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
     else:
         print('开始对类别特征训练GMM模型...')
         gmm = GMM(n_components=n_components).fit(x_train)  # 可以调reg_covar=0.0001
         print('训练完毕')
-        StandardVersion.saveModel(gmm, 'GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
+        ParseData.saveModel(gmm, 'GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
 
     labels_train = gmm.predict(x_train)
     labels_test = gmm.predict(x_test)
@@ -176,13 +177,13 @@ def getGMMNullFeature(df_train, df_test, n_components=4):
     # 加载pca模型
 
     pca_component = 10
-    if os.path.exists('model/PCANullFeature%d.model' % pca_component):
+    if ParseData.existModel('PCANullFeature%d.model' % pca_component):
         print('加载PCANullFeature文件..')
-        pca = StandardVersion.loadModel('PCANullFeature%d.model' % pca_component)
+        pca = ParseData.loadModel('PCANullFeature%d.model' % pca_component)
     else:
         pca = PCA(n_components=pca_component)
         pca.fit(df_train_null.values)
-        StandardVersion.saveModel(pca, 'PCANullFeature%d.model' % pca_component)
+        ParseData.saveModel(pca, 'PCANullFeature%d.model' % pca_component)
 
     df_train_null = pca.transform(df_train_null.values)
     df_test_null = pca.transform(df_test_null.values)
@@ -190,15 +191,15 @@ def getGMMNullFeature(df_train, df_test, n_components=4):
     print(df_test_null.shape)
 
     # 加载GMM空-非空模型
-    if os.path.exists('GMMNullFeature%d.model' % n_components):
+    if ParseData.existModel('GMMNullFeature%d.model' % n_components):
         print('加载GMMNullFeature文件..')
-        gmm = StandardVersion.loadModel('GMMNullFeature%d.model' % n_components)
+        gmm = ParseData.loadModel('GMMNullFeature%d.model' % n_components)
     else:
         print('开始对类别特征训练GMM模型...')
         gmm = GMM(n_components=n_components).fit(df_train_null)
 
         print('训练完毕')
-        StandardVersion.saveModel(gmm, 'GMMNullFeature%d.model' % n_components)
+        ParseData.saveModel(gmm, 'GMMNullFeature%d.model' % n_components)
 
     labels_train = gmm.predict(df_train_null)
     labels_test = gmm.predict(df_test_null)
@@ -229,15 +230,15 @@ def getKmeansNullFeature(df_train, df_test, n_components=4):
     print(df_test_null.shape)
     print(df_test_null)
 
-    if os.path.exists('model/KmeansNullFeature%d.model' % n_components):
+    if ParseData.existModel('KmeansNullFeature%d.model' % n_components):
         print('加载KmeansCategoryFeature文件..')
-        kmeans = StandardVersion.loadModel('KmeansNullFeature%d.model' % n_components)
+        kmeans = ParseData.loadModel('KmeansNullFeature%d.model' % n_components)
     else:
         print('开始对类别特征训练Kmeans模型...')
         kmeans = KMeans(n_clusters=n_components).fit(df_train_null)
 
         print('训练完毕')
-        StandardVersion.saveModel(kmeans, 'KmeansNullFeature%d.model' % n_components)
+        ParseData.saveModel(kmeans, 'KmeansNullFeature%d.model' % n_components)
 
     labels_train = kmeans.predict(df_train_null)
     labels_test = kmeans.predict(df_test_null)
@@ -276,14 +277,14 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
 
 
     # 开始kmeans训练
-    if os.path.exists('model/KmeansAllFeature%d.model' % n_components):
+    if ParseData.existModel('KmeansAllFeature%d.model' % n_components):
         print('加载KmeansAllFeature文件..')
-        kmeans = StandardVersion.loadModel('KmeansAllFeature%d.model' % n_components)
+        kmeans = ParseData.loadModel('KmeansAllFeature%d.model' % n_components)
     else:
         print('开始训练kmeans模型..')
         kmeans = KMeans(n_clusters=n_components).fit(df_train_smooth)
         print('训练完毕')
-        StandardVersion.saveModel(kmeans, 'KmeansAllFeature%d.model' % n_components)
+        ParseData.saveModel(kmeans, 'KmeansAllFeature%d.model' % n_components)
 
     labels_train = kmeans.predict(df_train_smooth)
     labels_test = kmeans.predict(df_test_smooth)
@@ -323,27 +324,27 @@ def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
 
     # PCA降维
     # 开始pca训练
-    if os.path.exists('model/PCAAllFeature.model'):
+    if ParseData.existModel('PCAAllFeature.model'):
         print('PCAAllFeature..')
-        pca = StandardVersion.loadModel('PCAAllFeature.model')
+        pca = ParseData.loadModel('PCAAllFeature.model')
     else:
         pca = PCA(0.95)
         pca.fit(df_train_smooth.values)
-        StandardVersion.saveModel(pca, 'PCAAllFeature.model')
+        ParseData.saveModel(pca, 'PCAAllFeature.model')
 
     df_train_smooth = pca.transform(df_train_smooth)
     df_test_smooth = pca.transform(df_test_smooth)
 
 
     # 开始kmeans训练
-    if os.path.exists('model/KmeansAllFeaturePCA%d.model' % n_components):
+    if ParseData.existModel('KmeansAllFeaturePCA%d.model' % n_components):
         print('加载KmeansAllFeature文件..')
-        kmeans = StandardVersion.loadModel('KmeansAllFeaturePCA%d.model' % n_components)
+        kmeans = ParseData.loadModel('KmeansAllFeaturePCA%d.model' % n_components)
     else:
         print('开始训练kmeans模型..')
         kmeans = KMeans(n_clusters=n_components).fit(df_train_smooth)
         print('训练完毕')
-        StandardVersion.saveModel(kmeans, 'KmeansAllFeaturePCA%d.model' % n_components)
+        ParseData.saveModel(kmeans, 'KmeansAllFeaturePCA%d.model' % n_components)
 
     labels_train = kmeans.predict(df_train_smooth)
     labels_test = kmeans.predict(df_test_smooth)
