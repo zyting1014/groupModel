@@ -76,7 +76,7 @@ def getTrainTestSample(df_train, df_test, feature_categorical):
 
 
 # 使用原生lgb
-def trainModel(X_train, y_train, X_test, y_test, round=1000):
+def trainModel(X_train, y_train, X_test, y_test, round=2000):
     # 创建成lgb特征的数据集格式
     print(X_train.shape)
     print(X_test.shape)
@@ -137,8 +137,8 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40',
     #                                                      0.5)
     # # xgboost分群4
-    df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
-    df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
@@ -150,7 +150,7 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # df_train, df_test = GroupFunc.nullCountcut(df_train, df_test)
 
     # kmeans所有特征聚类
-    # df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
+    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
     return df_train, df_test
 
 
@@ -158,9 +158,14 @@ def main():
     # df_train, df_test = ParseData.loadPartData()
     # df_train, df_test = ParseData.loadData()
     df_train, df_test = ParseData.loadOOTData()
+    # df_train, df_test = ParseData.loadOOT15Data()
+
+    df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
+    df_train = df_train[df_train['nunNum'] < 150]
+    df_train = df_train.drop(columns=['nunNum'])
 
     feature_categorical = getFeatureCategorical(df_train)
-    df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
+    # df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)

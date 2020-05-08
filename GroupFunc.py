@@ -11,6 +11,7 @@ import pandas as pd
 import os, sys
 import Tools
 import ParseData
+import kmedoids
 
 
 # 决策树划分1 特定策略实现（决策树）
@@ -268,13 +269,17 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     df_test_smooth = df_test_smooth[kmeans_list]
 
     # 缺失值处理 类别特征str化 平滑处理
+    # for column in Tools.iv_more_than_point_one:
+    #     df_train_smooth[column] = df_train_smooth[column].fillna(df_train_smooth[column].mean())
+    #     df_test_smooth[column] = df_test_smooth[column].fillna(df_test_smooth[column].mean())
+
+
     df_train_smooth = df_train_smooth.fillna(-99999)
     df_test_smooth = df_test_smooth.fillna(-99999)
     df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
     df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
     df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
     df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
-
 
     # 开始kmeans训练
     if ParseData.existModel('KmeansAllFeature%d.model' % n_components):
@@ -356,6 +361,100 @@ def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
     # 转为one-hot编码 4列
     df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['KmeansAllPCA'],
                                                                   'KmeansAllFeaturePCA')
+
+    return df_train, df_test, column_name
+
+
+# k-means 所有变量 不经过iv值过滤 平滑处理后 直接聚类
+def getKmeansAllFeatureNoFilter(df_train, df_test, n_components=4):
+    import StandardVersion
+    print('in %s' % sys._getframe().f_code.co_name)
+
+    feature_categorical = Tools.feature_categorical
+    df_train_smooth = df_train.copy()
+    df_test_smooth = df_test.copy()
+
+    # 获得要提取的特征列
+    kmeans_list = Tools.not_feature_categorical + feature_categorical
+    df_train_smooth = df_train_smooth[kmeans_list]
+    df_test_smooth = df_test_smooth[kmeans_list]
+
+    # 缺失值处理 类别特征str化 平滑处理
+    df_train_smooth = df_train_smooth.fillna(-99999)
+    df_test_smooth = df_test_smooth.fillna(-99999)
+    df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
+    df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+
+
+    # 开始kmeans训练
+    if ParseData.existModel('KmeansAllFeatureNoFilter%d.model' % n_components):
+        print('加载KmeansAllFeature文件..')
+        kmeans = ParseData.loadModel('KmeansAllFeatureNoFilter%d.model' % n_components)
+    else:
+        print('开始训练kmeans模型..')
+        kmeans = KMeans(n_clusters=n_components).fit(df_train_smooth)
+        print('训练完毕')
+        ParseData.saveModel(kmeans, 'KmeansAllFeatureNoFilter%d.model' % n_components)
+
+    labels_train = kmeans.predict(df_train_smooth)
+    labels_test = kmeans.predict(df_test_smooth)
+    df_train['KmeansAllNoFilter'] = labels_train.tolist()
+    df_test['KmeansAllNoFilter'] = labels_test.tolist()
+
+    print(df_train['KmeansAllNoFilter'].head())
+
+    # 转为one-hot编码 4列
+    df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['KmeansAllNoFilter'],
+                                                                  'KmeansAllFeatureNoFilter')
+
+    return df_train, df_test, column_name
+
+
+
+# k-means 所有变量 平滑处理后 直接聚类
+def getKmediodAllFeature(df_train, df_test, n_components=4):
+    import StandardVersion
+    print('in %s' % sys._getframe().f_code.co_name)
+
+    feature_categorical = Tools.feature_categorical
+    df_train_smooth = df_train.copy()
+    df_test_smooth = df_test.copy()
+
+    # 获得要提取的特征列
+    kmediod_list = Tools.iv_more_than_point_one + feature_categorical
+    df_train_smooth = df_train_smooth[kmediod_list]
+    df_test_smooth = df_test_smooth[kmediod_list]
+
+
+    df_train_smooth = df_train_smooth.fillna(-99999)
+    df_test_smooth = df_test_smooth.fillna(-99999)
+    df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
+    df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+
+    # 开始kmediod训练
+    if ParseData.existModel('KmediodAllFeature%d.model' % n_components):
+        print('加载KmediodAllFeature文件..')
+        kmediod = ParseData.loadModel('KmediodAllFeature%d.model' % n_components)
+    else:
+        print('开始训练kmediod模型..')
+        kmediod = kmedoids.KMediod(n_components).fit(df_train_smooth)
+        print('训练完毕')
+        ParseData.saveModel(kmediod, 'KmediodAllFeature%d.model' % n_components)
+
+    labels_train = kmediod.predict(df_train_smooth)
+    labels_test = kmediod.predict(df_test_smooth)
+    df_train['KmediodAll'] = labels_train.tolist()
+    df_test['KmediodAll'] = labels_test.tolist()
+
+    print(df_train['KmediodAll'].head())
+
+    # 转为one-hot编码 4列
+    df_train, df_test, column_name = StandardVersion.cateToOneHot(df_train, df_test, ['KmediodAll'],
+                                                                  'KmediodAllFeature')
 
     return df_train, df_test, column_name
 
