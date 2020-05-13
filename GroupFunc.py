@@ -634,6 +634,7 @@ def fenxiang(data, feature_name, cut):
     print(data[new_feature_name].head())
     return data[new_feature_name]
 
+
 # 移除日期特征
 def removeDateColumn(data):
     import Tools
