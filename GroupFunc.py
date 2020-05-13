@@ -116,12 +116,76 @@ def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2, is_segmentation=True):
     data['seg3'] = 0
     data['seg4'] = 0
 
+
     data.loc[((data[n1] < s1) | (data[n1].isnull())) & ((data[c1] < cs1) | (data[c1].isnull())), 'seg1'] = 1
     data.loc[((data[n1] < s1) | (data[n1].isnull())) & (data[c1] >= cs1), 'seg2'] = 1
     data.loc[(data[n1] >= s1) & ((data[c2] < cs2) | (data[c2].isnull())), 'seg3'] = 1
     data.loc[(data[n1] >= s1) & (data[c2] >= cs2), 'seg4'] = 1
 
     return data, column_name
+
+
+# 决策树划分 分为4个群 12个新变量
+def decisionTreeMethod4(data, n1, s1, c1, cs1, c2, cs2, cc1, ccs1, cc2, ccs2, cc3, ccs3, cc4, ccs4, is_segmentation=True):
+    print('in decisionTreeMethod3..')
+    column_name = []
+    for i in range(4):
+        column_name.append('seg%d' % (i + 1))
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+    data['seg4'] = 0
+    data['seg5'] = 0
+    data['seg6'] = 0
+    data['seg7'] = 0
+    data['seg8'] = 0
+    data['seg9'] = 0
+    data['seg10'] = 0
+    data['seg11'] = 0
+    data['seg12'] = 0
+
+
+    data.loc[((data[n1] < s1) | (data[n1].isnull())) & ((data[c1] < cs1) | (data[c1].isnull())), 'seg1'] = 1
+    data.loc[((data[n1] < s1) | (data[n1].isnull())) & (data[c1] >= cs1), 'seg2'] = 1
+    data.loc[(data[n1] >= s1) & ((data[c2] < cs2) | (data[c2].isnull())), 'seg3'] = 1
+    data.loc[(data[n1] >= s1) & (data[c2] >= cs2), 'seg4'] = 1
+
+    data.loc[((data['seg1'] == 1) & ((data[cc1] < ccs1) | data[cc1].isnull())), 'seg5'] = 1
+    data.loc[((data['seg1'] == 1) & (data[cc1] >= ccs1)), 'seg6'] = 1
+    data.loc[((data['seg2'] == 1) & ((data[cc2] < ccs2) | data[cc2].isnull())), 'seg7'] = 1
+    data.loc[((data['seg2'] == 1) & (data[cc2] >= ccs2)), 'seg8'] = 1
+    data.loc[((data['seg3'] == 1) & ((data[cc3] < ccs3) | data[cc3].isnull())), 'seg9'] = 1
+    data.loc[((data['seg3'] == 1) & (data[cc3] < ccs3)), 'seg10'] = 1
+    data.loc[((data['seg4'] == 1) & ((data[cc4] < ccs4) | data[cc4].isnull())), 'seg11'] = 1
+    data.loc[((data['seg4'] == 1) & (data[cc4] >= ccs4)), 'seg12'] = 1
+
+    return data, column_name
+
+# 决策树划分2 特定策略实现(决策树) 新 除日期外重要特征
+def decisionTreeMethod1New(data_origin,is_segmentation=True):
+    print('in decisionTreeMethod1New..')
+    column_name = []
+    for i in range(3):
+        column_name.append('seg%d' % (i + 1))
+    data = data_origin.copy(deep=True)
+    feature_list = ['creditlimitamount_4']
+    if is_segmentation:
+        data = data[feature_list].fillna(-99999)
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+
+
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5), 'seg1'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 299.5) & (data['creditlimitamount_4'] <= 65954.0), 'seg2'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0), 'seg3'] = 1
+
+    return data_origin, column_name
 
 
 # 高斯混合模型 用所有变量/类别变量聚类
@@ -146,7 +210,7 @@ def getGMMCategoryFeature(df_train, df_test, n_components=4):
         gmm = ParseData.loadModel('GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
     else:
         print('开始对类别特征训练GMM模型...')
-        gmm = GMM(n_components=n_components).fit(x_train)  # 可以调reg_covar=0.0001
+        gmm = GMM(n_components=n_components, reg_covar=0.0001).fit(x_train)  # 可以调reg_covar=0.0001
         print('训练完毕')
         ParseData.saveModel(gmm, 'GMMCategoryFeature%d_%d.model' % (n_components, feature_num))
 
@@ -264,7 +328,13 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     df_test_smooth = df_test.copy()
 
     # 获得要提取的特征列
-    kmeans_list = Tools.iv_more_than_point_one + feature_categorical
+    iv_more_than_point_one = Tools.iv_more_than_point_one
+    feature_categorical = Tools.feature_categorical
+    if ParseData.TYPE == 'OOT_noDate':
+        iv_more_than_point_one = list(set(iv_more_than_point_one) - set(Tools.feature_date))
+        feature_categorical = list(set(feature_categorical) - set(Tools.feature_date))
+
+    kmeans_list = iv_more_than_point_one + feature_categorical
     df_train_smooth = df_train_smooth[kmeans_list]
     df_test_smooth = df_test_smooth[kmeans_list]
 
@@ -278,8 +348,8 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     df_test_smooth = df_test_smooth.fillna(-99999)
     df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
     df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
-    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
-    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, iv_more_than_point_one)
 
     # 开始kmeans训练
     if ParseData.existModel('KmeansAllFeature%d.model' % n_components):
@@ -315,7 +385,14 @@ def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
     df_test_smooth = df_test.copy()
 
     # 获得要提取的特征列
-    kmeans_list = Tools.iv_more_than_point_one + feature_categorical
+    iv_more_than_point_one = Tools.iv_more_than_point_one
+    feature_categorical = Tools.feature_categorical
+    if ParseData.TYPE == 'OOT_noDate':
+        iv_more_than_point_one = list(set(iv_more_than_point_one) - set(Tools.feature_date))
+        feature_categorical = list(set(feature_categorical) - set(Tools.feature_date))
+
+    kmeans_list = iv_more_than_point_one + feature_categorical
+
     df_train_smooth = df_train_smooth[kmeans_list]
     df_test_smooth = df_test_smooth[kmeans_list]
 
@@ -324,8 +401,8 @@ def getKmeansAllFeaturePCA(df_train, df_test, n_components=4):
     df_test_smooth = df_test_smooth.fillna(-99999)
     df_train_smooth = StandardVersion.proprocessCateory(df_train_smooth, feature_categorical)
     df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
-    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, Tools.iv_more_than_point_one)
-    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, Tools.iv_more_than_point_one)
+    df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, iv_more_than_point_one)
+    df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, iv_more_than_point_one)
 
     # PCA降维
     # 开始pca训练
@@ -556,3 +633,12 @@ def fenxiang(data, feature_name, cut):
     data[new_feature_name] = pd.cut(data[feature_name], bins, labels=range(0, l))
     print(data[new_feature_name].head())
     return data[new_feature_name]
+
+# 移除日期特征
+def removeDateColumn(data):
+    import Tools
+    origin_column = data.columns
+    date_column = Tools.feature_date
+    remove_column = set(origin_column).intersection(set(date_column))
+
+    return data.drop(columns=remove_column, axis=1)

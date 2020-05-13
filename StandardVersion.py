@@ -56,11 +56,24 @@ def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
 
 def getFeatureCategorical(data):
     import pandas.api.types as types
+    import Tools
     feature_categorical = []
     for column in list(data.columns):
         if types.is_object_dtype(data[column]):
             feature_categorical.append(column)
+
     return feature_categorical
+
+
+def getFeatureDate(data):
+    import pandas.api.types as types
+    feature_date = []
+    for column in list(data.columns):
+        # 字段名带date的 或以20开头的
+        if str(column).find('date') != -1 or str(data[column][0]).startswith('20'):
+            feature_date.append(column)
+    return feature_date
+
 
 
 def getTrainTestSample(df_train, df_test, feature_categorical):
@@ -142,15 +155,38 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
-    # df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 4)
+    df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 4)
     # 类别特征GMM聚类
-    # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
+    # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, 4)
 
     # 空值特征数+分箱
     # df_train, df_test = GroupFunc.nullCountcut(df_train, df_test)
 
     # kmeans所有特征聚类
-    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
+    # df_train, df_test, column_name = GroupFunc.getKmeansAllFeaturePCA(df_train, df_test, 2)
+
+    # df_train, column_name = GroupFunc.decisionTreeMethod1New(df_train, False)
+    # df_test, column_name = GroupFunc.decisionTreeMethod1New(df_test, False)
+
+    # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5,
+    #                                                       'var_jb_22', 13.5,
+    #                                                       'var_jb_15', 169, 'creditlimitamount_4', 5999.5,
+    #                                                       'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
+    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5,
+    #                                                      'var_jb_22', 13.5,
+    #                                                      'var_jb_15', 169, 'creditlimitamount_4', 5999.5,
+    #                                                      'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
+
+    # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
+    #                                                       'var_jb_64', 13.5,
+    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
+    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
+    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
+    #                                                       'var_jb_64', 13.5,
+    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
+    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
+
+
     return df_train, df_test
 
 
@@ -160,12 +196,12 @@ def main():
     df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
-    df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
-    df_train = df_train[df_train['nunNum'] < 150]
-    df_train = df_train.drop(columns=['nunNum'])
+    # df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
+    # df_train = df_train[df_train['nunNum'] < 150]
+    # df_train = df_train.drop(columns=['nunNum'])
 
     feature_categorical = getFeatureCategorical(df_train)
-    # df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
+    df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)

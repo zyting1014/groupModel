@@ -103,3 +103,5 @@ def splitOOT15(df_train, df_test):
     df_train_new.to_csv('归档/data_m2_oot15.csv',index=None)
     df_test_new.to_csv('归档/data_reserved2_oot15.csv',index=None)
     print('保存成功！')
+
+
