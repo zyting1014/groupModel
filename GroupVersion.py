@@ -147,16 +147,20 @@ def transOnehotToList(df_train, df_test, one_hot_list):
 # 训练多个模型
 def trainMultiModel(train_list, test_list, feature_categorical):
     model_list = []
+    all_pred = []
     for i in range(len(train_list)):
         df_train, df_test = train_list[i], test_list[i]
         print('%d.训练样本%s，测试样本%s' % (i, df_train.shape, df_test.shape))
+        # 测试集该类没有样本 跳过
+        if df_test.shape[0] == 0:
+            continue
 
         X_train, y_train, X_test, y_test = baseline.getTrainTestSample(df_train, df_test, feature_categorical)
 
         gbm, y_pred = baseline.trainModel(X_train, y_train, X_test, y_test)
         model_list.append(gbm)
 
-        if i == 0:
+        if len(all_pred) == 0:
             all_pred = y_pred
             all_test = y_test
         else:
@@ -229,11 +233,11 @@ def transSampleToList(df_train, df_test, feature_categorical):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    # df_train, df_test = ParseData.loadData()
-    df_train, df_test = ParseData.loadOOTData()
+    df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
-    ParseData.TYPE = 'OOT_noDate'
+    # ParseData.TYPE = 'OOT_noDate'
 
     feature_categorical = baseline.getFeatureCategorical(df_train)
 

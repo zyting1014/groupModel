@@ -16,7 +16,7 @@ import kmedoids
 
 # 决策树划分1 特定策略实现（决策树）
 def decisionTreeMethod1(data_origin, is_segmentation=True):
-    print('in decisionTreeMethod1..')
+    print('in %s' % sys._getframe().f_code.co_name)
     column_name = []
     for i in range(6):
         column_name.append('seg%d' % (i + 1))
@@ -48,7 +48,7 @@ def decisionTreeMethod1(data_origin, is_segmentation=True):
 
 # 决策树划分2 特定策略实现（决策树）
 def decisionTreeMethod2(data_origin, is_segmentation=True):
-    print('in decisionTreeMethod2..')
+    print('in %s' % sys._getframe().f_code.co_name)
     column_name = []
     for i in range(4):
         column_name.append('seg%d' % (i + 1))
@@ -106,7 +106,7 @@ def decisionTreeMethod2(data_origin, is_segmentation=True):
 
 # 决策树划分 分为4个群
 def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2, is_segmentation=True):
-    print('in decisionTreeMethod3..')
+    print('in %s' % sys._getframe().f_code.co_name)
     column_name = []
     for i in range(4):
         column_name.append('seg%d' % (i + 1))
@@ -127,7 +127,7 @@ def decisionTreeMethod3(data, n1, s1, c1, cs1, c2, cs2, is_segmentation=True):
 
 # 决策树划分 分为4个群 12个新变量
 def decisionTreeMethod4(data, n1, s1, c1, cs1, c2, cs2, cc1, ccs1, cc2, ccs2, cc3, ccs3, cc4, ccs4, is_segmentation=True):
-    print('in decisionTreeMethod3..')
+    print('in %s' % sys._getframe().f_code.co_name)
     column_name = []
     for i in range(4):
         column_name.append('seg%d' % (i + 1))
@@ -164,7 +164,7 @@ def decisionTreeMethod4(data, n1, s1, c1, cs1, c2, cs2, cc1, ccs1, cc2, ccs2, cc
 
 # 决策树划分2 特定策略实现(决策树) 新 除日期外重要特征
 def decisionTreeMethod1New(data_origin,is_segmentation=True):
-    print('in decisionTreeMethod1New..')
+    print('in %s' % sys._getframe().f_code.co_name)
     column_name = []
     for i in range(3):
         column_name.append('seg%d' % (i + 1))
@@ -190,7 +190,7 @@ def decisionTreeMethod1New(data_origin,is_segmentation=True):
 
 # 高斯混合模型 用所有变量/类别变量聚类
 def getGMMCategoryFeature(df_train, df_test, n_components=4):
-    print('in getGMMCategoryFeature..')
+    print('in %s' % sys._getframe().f_code.co_name)
     import StandardVersion
     feature_categorical = Tools.feature_categorical
     print(feature_categorical)
@@ -229,7 +229,7 @@ def getGMMCategoryFeature(df_train, df_test, n_components=4):
 
 # 高斯混合模型 用空/非空变量进行pca降维 再聚类
 def getGMMNullFeature(df_train, df_test, n_components=4):
-    print('in getGMMNullFeature..')
+    print('in %s' % sys._getframe().f_code.co_name)
     import StandardVersion
     X_train = df_train.copy()
     X_test = df_test.copy()
@@ -280,7 +280,7 @@ def getGMMNullFeature(df_train, df_test, n_components=4):
 
 # k-means 用空/非空变量进行pca降维 再聚类
 def getKmeansNullFeature(df_train, df_test, n_components=4):
-    print('in getKmeansNullFeature..')
+    print('in %s' % sys._getframe().f_code.co_name)
     import StandardVersion
     X_train = df_train.copy()
     X_test = df_test.copy()
@@ -350,6 +350,10 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     df_test_smooth = StandardVersion.proprocessCateory(df_test_smooth, feature_categorical)
     df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, iv_more_than_point_one)
     df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, iv_more_than_point_one)
+
+    drop_col = list(set(Tools.sparse_feature).intersection(set(df_train_smooth.columns)))
+    df_train_smooth = df_train_smooth.drop(columns=drop_col, axis=1)
+    df_test_smooth = df_test_smooth.drop(columns=drop_col, axis=1)
 
     # 开始kmeans训练
     if ParseData.existModel('KmeansAllFeature%d.model' % n_components):
@@ -487,7 +491,6 @@ def getKmeansAllFeatureNoFilter(df_train, df_test, n_components=4):
                                                                   'KmeansAllFeatureNoFilter')
 
     return df_train, df_test, column_name
-
 
 
 # k-means 所有变量 平滑处理后 直接聚类

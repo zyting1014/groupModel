@@ -8,7 +8,8 @@ import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
 import GroupFunc
-import os
+import os, time
+import pandas.api.types as types
 
 """
     未进行分群 一个模型
@@ -30,6 +31,7 @@ def proprocessCateory(data, feature_categorical):
     return data
 
 
+# 将类别特征转为one-hot编码
 def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
     print('将%s转化为one-hot编码，转化前特征数量为%d' % (feature_list, df_train.shape[1]))
     enc = OneHotEncoder()
@@ -65,15 +67,59 @@ def getFeatureCategorical(data):
     return feature_categorical
 
 
+# 获得时期特征
 def getFeatureDate(data):
-    import pandas.api.types as types
     feature_date = []
     for column in list(data.columns):
         # 字段名带date的 或以20开头的
-        if str(column).find('date') != -1 or str(data[column][0]).startswith('20'):
+        if str(column).find('date') != -1:
             feature_date.append(column)
+            continue
+        for j in range(200):
+            if str(data[column][j]).startswith('201') and len(str(data[column][j])) > 10:
+                feature_date.append(column)
+                break
     return feature_date
 
+
+# 将日期变量转为int
+def parseDateToInt(data0, columns):
+    def change(x):
+        if isinstance(x, str):
+            if x.find('/') != -1:
+                y = time.strptime(x, '%Y/%m/%d %H:%M')
+                x = str(y.tm_year)
+                if len(str(y.tm_mon)) == 1:
+                    x = x + '0'
+                x = x + str(y.tm_mon)
+                if len(str(y.tm_mday)) == 1:
+                    x = x + '0'
+                x = x + str(y.tm_mday)
+
+            x = x.replace('.', '')
+            x = x.replace(' ', '.')
+            return x
+
+    data = data0.copy(deep=True)
+    for column in columns:
+        if types.is_string_dtype(data[column]):
+            if data[column].isnull().sum(axis=0) != 0:
+                data[column] = data[column].apply(change)
+
+                data[column] = pd.to_numeric(data[column], errors='coerce')
+    #                 data[column] = data[column + '_new']
+    return data
+
+
+# 获得稀疏数据列 稀疏度阈值为0.2
+def getNotSparseFeature(df_train):
+    sparse_feature = []
+    cnt = df_train.shape[0]
+    for column in df_train.columns:
+        null_rate = df_train[column].isnull().sum(axis=0) / cnt
+        if null_rate > 0.2:
+            sparse_feature.append(column)
+    return sparse_feature
 
 
 def getTrainTestSample(df_train, df_test, feature_categorical):
@@ -139,8 +185,8 @@ def featureImportance(gbm):
 # 集成所有分群生成新特征的函数
 def getNewFeature(df_train, df_test, feature_categorical):
     # 决策树分群1
-    # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train, False)
-    # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test, False)
+    df_train, column_name = GroupFunc.decisionTreeMethod1(df_train, False)
+    df_test, column_name = GroupFunc.decisionTreeMethod1(df_test, False)
     # 决策树分群2
     # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
     # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
@@ -155,7 +201,7 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
-    df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 4)
+    # df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 4)
     # 类别特征GMM聚类
     # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, 4)
 
@@ -192,16 +238,29 @@ def getNewFeature(df_train, df_test, feature_categorical):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    # df_train, df_test = ParseData.loadData()
-    df_train, df_test = ParseData.loadOOTData()
+    df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
     # df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
     # df_train = df_train[df_train['nunNum'] < 150]
     # df_train = df_train.drop(columns=['nunNum'])
+    ##################################################
+    # 日期特征处理
+    feature_date = getFeatureDate(df_train)
+    df_train = parseDateToInt(df_train, feature_date)
+    df_test = parseDateToInt(df_test, feature_date)
+    # 类别特征处理
+
+    ##################################################
+
+
 
     feature_categorical = getFeatureCategorical(df_train)
     df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
+
+
+
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)
