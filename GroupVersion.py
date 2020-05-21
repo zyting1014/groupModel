@@ -172,64 +172,41 @@ def trainMultiModel(train_list, test_list, feature_categorical):
     return all_pred, all_test, model_list
 
 
-def transSampleToList(df_train, df_test, feature_categorical):
-    import GroupFunc
+def supervised_method(df_train, df_test):
+    import GroupFunc_old
     column_name = []
-    train_list, test_list = [df_train], [df_test]
+    # implement code here
 
-    # trainList, testList = descartesGroupDataToListThree(df_train, df_test, 'nasrdw_recd_date', 'var_jb_28',
-    #                                                'var_jb_1', 20181023, 4.5, 23.5)
-    # trainList, testList = treeGroupDataToListTwo(df_train, df_test, 'type_91|个人消费贷款', 0.5,
-    #                                                   'var_jb_64', 13.5, 'var_jb_40', 0.5)
-    # trainList, testList = treeGroupDataToListTwo(df_train, df_test, 'creditlimitamount_4', 32188.5,
-    #                                                   'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
-    # trainList, testList = treeGroupDataToListTwo(df_train, df_test, 'var_jb_28', 4.5,
-    #                                                   'var_jb_23', 27.5, 'nasrdw_recd_date', 20181023)
-    #######################################################################################
+
+    return df_train, df_test, column_name
+
+def unsupervised_method(df_train, df_test):
+    import GroupFunc_old
+    column_name = []
     # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
-    # df_train, column_name = GroupFunc.decisionTreeMethod1(df_train)
-    # df_test, column_name = GroupFunc.decisionTreeMethod1(df_test)
-    # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
-
-    # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
-
     # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, 2)
-    # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
-    # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
-
-    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5,
-    #                                                       'var_jb_40', 0.5)
-    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40',
-    #                                                      0.5)
 
     # df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 2)
 
-    df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 2)
+    df_train, df_test, column_name = GroupFunc_old.getKmeansNullFeature(df_train, df_test, 2)
+
+    # df_train, df_test, column_name = GroupFunc.nullCountcut(df_train, df_test)
+
+    return df_train, df_test, column_name
 
 
-    # df_train, column_name = GroupFunc.decisionTreeMethod1New(df_train, True)
-    # df_test, column_name = GroupFunc.decisionTreeMethod1New(df_test, True)
-    # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5, 'var_jb_22', 13.5,
-    #                                                       'var_jb_15', 169, 'creditlimitamount_4', 5999.5, 'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
-    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5, 'var_jb_22', 13.5,
-    #                                                       'var_jb_15', 169, 'creditlimitamount_4', 5999.5, 'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
-    #
-    # # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
-    #                                                       'var_jb_64', 13.5,
-    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
-    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
-    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
-    #                                                       'var_jb_64', 13.5,
-    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
-    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
+def transSampleToList(df_train, df_test, feature_categorical):
+    import GroupFunc_old
 
+    train_list, test_list = [df_train], [df_test]
+
+    df_train, df_test, column_name = supervised_method(df_train, df_test)
+    df_train, df_test, column_name = unsupervised_method(df_train, df_test)
 
     train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
-    # df_train, df_test, column_name = GroupFunc.nullCountcut(df_train, df_test)
-    # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
     return train_list, test_list
 

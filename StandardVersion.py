@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
-import GroupFunc
+import GroupFunc_old
 import os, time
 import pandas.api.types as types
 
@@ -224,20 +224,7 @@ def featureImportance(gbm):
 
 # 集成所有分群生成新特征的函数
 def getNewFeature(df_train, df_test, feature_categorical):
-    # 决策树分群1
-    df_train, column_name = GroupFunc.decisionTreeMethod1(df_train, False)
-    df_test, column_name = GroupFunc.decisionTreeMethod1(df_test, False)
-    # 决策树分群2
-    # df_train, column_name = GroupFunc.decisionTreeMethod2(df_train, False)
-    # df_test, column_name = GroupFunc.decisionTreeMethod2(df_test, False)
-    # xgboost分群3
-    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5,
-    #                                                       'var_jb_40', 0.5)
-    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40',
-    #                                                      0.5)
-    # # xgboost分群4
-    # df_train, column_name = GroupFunc.decisionTreeMethod3(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
-    # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_22', 13.5, 'nasrdw_recd_date', 20181024)
+
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
@@ -254,23 +241,6 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # df_train, column_name = GroupFunc.decisionTreeMethod1New(df_train, False)
     # df_test, column_name = GroupFunc.decisionTreeMethod1New(df_test, False)
 
-    # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5,
-    #                                                       'var_jb_22', 13.5,
-    #                                                       'var_jb_15', 169, 'creditlimitamount_4', 5999.5,
-    #                                                       'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
-    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_test, 'creditlimitamount_4', 32188.5, 'var_jb_94', 571.5,
-    #                                                      'var_jb_22', 13.5,
-    #                                                      'var_jb_15', 169, 'creditlimitamount_4', 5999.5,
-    #                                                      'creditlimitamount_4', 245020, 'creditlimitamount_4', 80855)
-
-    # df_train, column_name = GroupFunc.decisionTreeMethod4(df_train, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
-    #                                                       'var_jb_64', 13.5,
-    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
-    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
-    # df_test, column_name = GroupFunc.decisionTreeMethod4(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_28', 4.5,
-    #                                                       'var_jb_64', 13.5,
-    #                                                       'mis_date_7', 20181010, 'latest5yearoverduebeginmonth_4', 2015.06494,
-    #                                                       'var_jb_20', 0.0185000002, 'var_jb_40', 0.5)
 
 
     return df_train, df_test

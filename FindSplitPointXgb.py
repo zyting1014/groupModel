@@ -82,9 +82,10 @@ def main():
 
     img = showPicture(xgb, 0)
 
-    train_sentence, test_sentence = CodeGenerateXgb.create(img)
+    train_sentence, test_sentence, seg_sentence = CodeGenerateXgb.create(img)
     print(train_sentence)
     print(test_sentence)
+    print(seg_sentence)
 
 
 

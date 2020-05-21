@@ -1,6 +1,5 @@
 """
     分群作为新特征函数 被StandardVersion类调用
-    新 在原有的基础上进行了优化、删减
 """
 from sklearn.mixture import GaussianMixture as GMM
 from sklearn.cluster import KMeans
@@ -13,6 +12,96 @@ import os, sys
 import Tools
 import ParseData
 import kmedoids
+
+
+# 决策树划分1 特定策略实现（决策树）
+def decisionTreeMethod1(data_origin, is_segmentation=True):
+    print('in %s' % sys._getframe().f_code.co_name)
+    column_name = []
+    for i in range(6):
+        column_name.append('seg%d' % (i + 1))
+    data = data_origin.copy(deep=True)
+    feature_list = ['var_jb_23', 'var_jb_28', 'nasrdw_recd_date']
+    if is_segmentation:
+        data = data[feature_list].fillna(-99999)
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+    data['seg4'] = 0
+    data['seg5'] = 0
+    data['seg6'] = 0
+
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg1'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] <= 27.5) & (data['nasrdw_recd_date'] > 20181023), 'seg2'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] <= 20181023), 'seg3'] = 1
+    data_origin.loc[
+        (data['var_jb_28'] <= 4.5) & (data['var_jb_23'] > 27.5) & (data['nasrdw_recd_date'] > 20181023), 'seg4'] = 1
+    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] <= 20181011), 'seg5'] = 1
+    data_origin.loc[(data['var_jb_28'] > 4.5) & (data['nasrdw_recd_date'] > 20181011), 'seg6'] = 1
+
+    return data_origin, column_name
+
+
+# 决策树划分2 特定策略实现（决策树）
+def decisionTreeMethod2(data_origin, is_segmentation=True):
+    print('in %s' % sys._getframe().f_code.co_name)
+    column_name = []
+    for i in range(4):
+        column_name.append('seg%d' % (i + 1))
+    data = data_origin.copy(deep=True)
+    feature_list = ['nasrdw_recd_date', 'var_jb_23', 'creditlimitamount_4']
+    if is_segmentation:
+        data[feature_list] = data[feature_list].fillna(-99999)
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+    data['seg4'] = 0
+    data['seg5'] = 0
+    data['seg6'] = 0
+    data['seg7'] = 0
+    data['seg8'] = 0
+    data['seg9'] = 0
+    data['seg10'] = 0
+    data['seg11'] = 0
+    data['seg12'] = 0
+
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5), 'seg1'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 65954.0) & (data['creditlimitamount_4'] > 299.5), 'seg2'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0), 'seg3'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 329720.0), 'seg4'] = 1
+
+    ##########################
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5) & (data['var_jb_23'] <= 10.5), 'seg5'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5) & (data['var_jb_23'] > 10.5), 'seg6'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 65954.0) & (data['creditlimitamount_4'] > 299.5) & (
+                data['nasrdw_recd_date'] <= 20181023.0), 'seg7'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 65954.0) & (data['creditlimitamount_4'] > 299.5) & (
+                data['nasrdw_recd_date'] > 20181023.0), 'seg8'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0) & (
+                data['nasrdw_recd_date'] <= 20181023.0), 'seg9'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0) & (data['creditlimitamount_4'] <= 329720.0) & (
+                data['nasrdw_recd_date'] > 20181023.0), 'seg10'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 329720.0) & (data['creditlimitamount_4'] <= 509500.0), 'seg11'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 329720.0) & (data['creditlimitamount_4'] > 509500.0), 'seg12'] = 1
+
+    return data_origin, column_name
 
 
 # 决策树划分 分为4个群
@@ -73,6 +162,30 @@ def decisionTreeMethod4(data, n1, s1, c1, cs1, c2, cs2, cc1, ccs1, cc2, ccs2, cc
 
     return data, column_name
 
+# 决策树划分2 特定策略实现(决策树) 新 除日期外重要特征
+def decisionTreeMethod1New(data_origin,is_segmentation=True):
+    print('in %s' % sys._getframe().f_code.co_name)
+    column_name = []
+    for i in range(3):
+        column_name.append('seg%d' % (i + 1))
+    data = data_origin.copy(deep=True)
+    feature_list = ['creditlimitamount_4']
+    if is_segmentation:
+        data = data[feature_list].fillna(-99999)
+
+    data['seg1'] = 0
+    data['seg2'] = 0
+    data['seg3'] = 0
+
+
+    data_origin.loc[
+        (data['creditlimitamount_4'] <= 299.5), 'seg1'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 299.5) & (data['creditlimitamount_4'] <= 65954.0), 'seg2'] = 1
+    data_origin.loc[
+        (data['creditlimitamount_4'] > 65954.0), 'seg3'] = 1
+
+    return data_origin, column_name
 
 
 # 高斯混合模型 用所有变量/类别变量聚类

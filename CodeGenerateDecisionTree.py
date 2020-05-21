@@ -8,9 +8,7 @@ import sys
 from queue import Queue
 import CodeGenerateXgb
 
-nodes = []
-for i in range(500):
-    nodes.append(Node.Node(-1))
+
 
 
 def get_attribute(dtree):
@@ -22,6 +20,10 @@ def get_attribute(dtree):
 
 
 def generate_tree_structure(feature_list, feature, children_left, children_right, threshold):
+    nodes = []
+    for i in range(500):
+        nodes.append(Node.Node(-1))
+
     for i in range(len(feature_list)):
         left = children_left[i]
         right = children_right[i]
@@ -35,9 +37,12 @@ def generate_tree_structure(feature_list, feature, children_left, children_right
         nodes[position].left = left
         nodes[position].right = right
 
+    return nodes
 
 def create(dtree, feature_list):
     feature, children_left, children_right, threshold = get_attribute(dtree)
-    generate_tree_structure(feature_list, feature, children_left, children_right, threshold)
-    res = CodeGenerateXgb.level_tranverse()
+    nodes = generate_tree_structure(feature_list, feature, children_left, children_right, threshold)
+    res = CodeGenerateXgb.level_tranverse(nodes)
     train_sentence, test_sentence = CodeGenerateXgb.generate_sentance(res)
+    seg_sentence = CodeGenerateXgb.generate_sentance_group(res)
+    return train_sentence, test_sentence, seg_sentence

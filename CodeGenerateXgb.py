@@ -7,13 +7,14 @@ import re
 import sys
 from queue import Queue
 
-nodes = []
-for i in range(500):
-    nodes.append(Node.Node(-1))
 
 
 def generate_tree_structure(img):
     print('in %s' % sys._getframe().f_code.co_name)
+    nodes = []
+    for i in range(500):
+        nodes.append(Node.Node(-1))
+
     info = img.source
     info = info.split('\n\n')
     for three_item in info[1:-1]:
@@ -24,14 +25,15 @@ def generate_tree_structure(img):
         split = re.search('label="(.*)" ]', three_item[0]).group(1)
         left_position = int(re.search('-> (.*) \[', three_item[1]).group(1))
         right_position = int(re.search('-> (.*) \[', three_item[2]).group(1))
-        print('position:%s,split:%s,left_position:%s,right_position:%s' % (
-            position, split, left_position, right_position))
+        # print('position:%s,split:%s,left_position:%s,right_position:%s' % (
+        #     position, split, left_position, right_position))
         nodes[position].value = split
         nodes[position].left = left_position
         nodes[position].right = right_position
+    return nodes
 
 
-def level_tranverse():
+def level_tranverse(nodes):
     q = Queue()
     q.put(0)
     res = []
@@ -50,7 +52,7 @@ def level_tranverse():
 
 
 def generate_sentance(res):
-    sentence = 'df_train, column_name = GroupFunc.decisionTreeMethod3(df_train'
+    sentence = 'df_train, column_name = GroupFunc.decisionTreeMethod4(df_train'
     for item in res[:7]:
         item = item.split('<')
         sentence += ', "'
@@ -62,9 +64,22 @@ def generate_sentance(res):
     test_sentence = sentence.replace('train', 'test')
     return train_sentence, test_sentence
 
+def generate_sentance_group(res):
+    sentence = 'trainList, testList = treeGroupDataToListTwo(df_train, df_test'
+    for item in res[:3]:
+        item = item.split('<')
+        sentence += ', "'
+        sentence += item[0]
+        sentence += '", '
+        sentence += item[1]
+    sentence += ')'
+
+    return sentence
+
 
 def create(img):
-    generate_tree_structure(img)
-    res = level_tranverse()
+    nodes = generate_tree_structure(img)
+    res = level_tranverse(nodes)
     train_sentence, test_sentence = generate_sentance(res)
-    return train_sentence, test_sentence
+    seg_sentence = generate_sentance_group(res)
+    return train_sentence, test_sentence, seg_sentence

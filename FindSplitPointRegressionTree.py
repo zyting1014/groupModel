@@ -63,8 +63,10 @@ def main():
     x, dtree = train_tree_regressor(df_train, feature_list)
     graph = make_picture(x, dtree)
     show_picture(graph)
-    train_sentence, test_sentence = CodeGenerateDecisionTree.create(dtree, feature_list)
-    print(train_sentence, test_sentence)
+    train_sentence, test_sentence, seg_sentence = CodeGenerateDecisionTree.create(dtree, feature_list)
+    print(train_sentence)
+    print(test_sentence)
+    print(seg_sentence)
 
 if __name__ == '__main__':
     main()
