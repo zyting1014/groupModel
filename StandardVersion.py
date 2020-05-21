@@ -56,6 +56,7 @@ def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
     return df_train, df_test, column_name
 
 
+# 获得类别特征
 def getFeatureCategorical(data):
     import pandas.api.types as types
     import Tools
@@ -67,7 +68,46 @@ def getFeatureCategorical(data):
     return feature_categorical
 
 
-# 获得时期特征
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import OneHotEncoder
+
+
+# 将类别数小于100的类别特征转化为one-hot编码,再用pca降维
+def CategoryPCA(df_train_, df_test_, feature_categorical):
+    df_train = df_train_.copy()
+    df_test = df_test_.copy()
+
+    # 将cnt小于100的特征用PCA降维 添加到原始特征上
+    feature_pca = []
+    for feature in feature_categorical:
+        if df_train[feature].nunique() <= 100:
+            feature_pca.append(feature)
+
+    df_train[feature_pca] = df_train[feature_pca].fillna('nan')
+    df_test[feature_pca] = df_test[feature_pca].fillna('nan')
+
+    df_train_new, df_test_new, feature_pca_new = cateToOneHot(df_train, df_test, feature_pca, 'cate_')
+
+    print(df_train_new[feature_pca_new].head())
+
+    pca = PCA(n_components=0.95)
+    pca.fit(df_train_new[feature_pca_new].values)
+    new_train = pca.transform(df_train_new[feature_pca_new].values)
+    new_test = pca.transform(df_test_new[feature_pca_new].values)
+
+    new_train = pd.DataFrame(new_train, columns=feature_pca_new[:new_train.shape[1]])
+    new_test = pd.DataFrame(new_test, columns=feature_pca_new[:new_train.shape[1]])
+
+    df_train = pd.concat([df_train_, new_train], axis=1)
+    df_test = pd.concat([df_test_, new_test], axis=1)
+
+    print(df_train.shape)
+    print(df_test.shape)
+
+    return df_train, df_test
+
+
+# 获得日期特征
 def getFeatureDate(data):
     feature_date = []
     for column in list(data.columns):
@@ -237,8 +277,8 @@ def getNewFeature(df_train, df_test, feature_categorical):
 
 
 def main():
-    # df_train, df_test = ParseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadPartData()
+    # df_train, df_test = ParseData.loadData()
     # df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
@@ -251,7 +291,7 @@ def main():
     df_train = parseDateToInt(df_train, feature_date)
     df_test = parseDateToInt(df_test, feature_date)
     # 类别特征处理
-
+    df_train, df_test = CategoryPCA(df_train, df_test, getFeatureCategorical(df_train))
     ##################################################
 
 
@@ -265,6 +305,8 @@ def main():
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)
     featureImportance(gbm)
+
+    Evaluation.get_pos_neg_picture(y_test, y_pred)
 
 
 if __name__ == '__main__':

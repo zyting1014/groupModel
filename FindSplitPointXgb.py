@@ -58,7 +58,7 @@ def trainModel(X_train, y_train, X_test, y_test, round=5):
 def showPicture(xgb, num_trees=0):
     print('in %s' % sys._getframe().f_code.co_name)
     xgboost.to_graphviz(xgb, num_trees=0)
-    img = xgboost.to_graphviz(xgb, num_trees=num_trees)
+    img = xgboost.to_graphviz(xgb, num_trees=num_trees)  # 这行直接可以放在jupyter理正确显示
     img.format = 'png'
     img.view('image//xgb')
 

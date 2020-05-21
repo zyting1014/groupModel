@@ -351,9 +351,6 @@ def getKmeansAllFeature(df_train, df_test, n_components=4):
     df_train_smooth = Tools.apply_log1p_transformation(df_train_smooth, iv_more_than_point_one)
     df_test_smooth = Tools.apply_log1p_transformation(df_test_smooth, iv_more_than_point_one)
 
-    drop_col = list(set(Tools.sparse_feature).intersection(set(df_train_smooth.columns)))
-    df_train_smooth = df_train_smooth.drop(columns=drop_col, axis=1)
-    df_test_smooth = df_test_smooth.drop(columns=drop_col, axis=1)
 
     # 开始kmeans训练
     if ParseData.existModel('KmeansAllFeature%d.model' % n_components):

@@ -204,7 +204,10 @@ def transSampleToList(df_train, df_test, feature_categorical):
     # df_test, column_name = GroupFunc.decisionTreeMethod3(df_test, 'type_91|个人消费贷款', 0.5, 'var_jb_64', 13.5, 'var_jb_40',
     #                                                      0.5)
 
-    df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 2)
+    # df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 2)
+
+    df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 2)
+
 
     # df_train, column_name = GroupFunc.decisionTreeMethod1New(df_train, True)
     # df_test, column_name = GroupFunc.decisionTreeMethod1New(df_test, True)
@@ -233,11 +236,21 @@ def transSampleToList(df_train, df_test, feature_categorical):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    df_train, df_test = ParseData.loadData()
-    # df_train, df_test = ParseData.loadOOTData()
+    # df_train, df_test = ParseData.loadData()
+    df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
+    # df_train, df_test = ParseData.loadData_new()
 
     # ParseData.TYPE = 'OOT_noDate'
+
+    ##################################################
+    # 日期特征处理
+    # feature_date = baseline.getFeatureDate(df_train)
+    # df_train = baseline.parseDateToInt(df_train, feature_date)
+    # df_test = baseline.parseDateToInt(df_test, feature_date)
+    # # 类别特征处理
+    # df_train, df_test = baseline.CategoryPCA(df_train, df_test, baseline.getFeatureCategorical(df_train))
+    # ##################################################
 
     feature_categorical = baseline.getFeatureCategorical(df_train)
 
