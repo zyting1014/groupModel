@@ -37,9 +37,10 @@ def cateToOneHot(df_train, df_test, feature_list, prefix_name=''):
     enc = OneHotEncoder()
     df_train_new = pd.DataFrame()
     df_test_new = pd.DataFrame()
+    print(df_train[feature_list].isnull().sum())
     for feature in feature_list:
-        train_feature_array = np.array([df_train[feature]]).T
-        test_feature_array = np.array([df_test[feature]]).T
+        train_feature_array = np.array([df_train[feature].astype(str)]).T
+        test_feature_array = np.array([df_test[feature].astype(str)]).T
         feature_array = np.vstack((train_feature_array, test_feature_array))
         enc.fit(feature_array)
         train_new_column = enc.transform(train_feature_array).toarray()
@@ -222,9 +223,11 @@ def featureImportance(gbm):
     feature_importance.to_csv('feature_importance.csv', index=False)
 
 
-# 集成所有分群生成新特征的函数
-def getNewFeature(df_train, df_test, feature_categorical):
+def supervised_method(df_train, df_test):
+    return df_train, df_test
 
+
+def unsupervised_method(df_train, df_test):
     # 空值特征数
     # df_train, df_test = GroupFunc.isNullCount(df_train, df_test)
     # 空/非空特征lda+GMM聚类
@@ -241,15 +244,20 @@ def getNewFeature(df_train, df_test, feature_categorical):
     # df_train, column_name = GroupFunc.decisionTreeMethod1New(df_train, False)
     # df_test, column_name = GroupFunc.decisionTreeMethod1New(df_test, False)
 
+    return df_train, df_test
 
 
+# 集成所有分群生成新特征的函数
+def getNewFeature(df_train, df_test):
+    df_train, df_test = supervised_method(df_train, df_test)
+    df_train, df_test = unsupervised_method(df_train, df_test)
     return df_train, df_test
 
 
 def main():
-    df_train, df_test = ParseData.loadPartData()
+    # df_train, df_test = ParseData.loadPartData()
     # df_train, df_test = ParseData.loadData()
-    # df_train, df_test = ParseData.loadOOTData()
+    df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
     # df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
@@ -267,7 +275,7 @@ def main():
 
 
     feature_categorical = getFeatureCategorical(df_train)
-    df_train, df_test = getNewFeature(df_train, df_test, feature_categorical)
+    df_train, df_test = getNewFeature(df_train, df_test)
 
 
 

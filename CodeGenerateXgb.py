@@ -65,7 +65,7 @@ def generate_sentance(res):
     return train_sentence, test_sentence
 
 def generate_sentance_group(res):
-    sentence = 'trainList, testList = treeGroupDataToListTwo(df_train, df_test'
+    sentence = 'train_list, test_list = treeGroupDataToListTwo(df_train, df_test'
     for item in res[:3]:
         item = item.split('<')
         sentence += ', "'
