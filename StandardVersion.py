@@ -278,7 +278,6 @@ def main():
     df_train, df_test = getNewFeature(df_train, df_test)
 
 
-
     x_train, y_train, x_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
     gbm, y_pred = trainModel(x_train, y_train, x_test, y_test)
     Evaluation.getKsValue(y_test, y_pred)
