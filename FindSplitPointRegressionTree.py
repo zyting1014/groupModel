@@ -11,6 +11,7 @@ from IPython.display import display,Image
 from sklearn.externals.six import StringIO
 import ParseData
 import os
+import CodeGenerateDecisionTree
 
 def train_tree_regressor(data, feature_list=[]):
     print('Fill nan...')
@@ -62,6 +63,8 @@ def main():
     x, dtree = train_tree_regressor(df_train, feature_list)
     graph = make_picture(x, dtree)
     show_picture(graph)
+    train_sentence, test_sentence = CodeGenerateDecisionTree.create(dtree, feature_list)
+    print(train_sentence, test_sentence)
 
 if __name__ == '__main__':
     main()

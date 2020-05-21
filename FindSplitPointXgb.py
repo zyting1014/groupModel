@@ -3,6 +3,7 @@ import StandardVersion as baseline
 from xgboost import XGBClassifier
 import xgboost
 import sys
+import CodeGenerateXgb
 
 '''
     graphiz的view函数中文乱码的问题有待解决,不加view显示正确
@@ -61,6 +62,7 @@ def showPicture(xgb, num_trees=0):
     img = xgboost.to_graphviz(xgb, num_trees=num_trees)  # 这行直接可以放在jupyter理正确显示
     img.format = 'png'
     img.view('image//xgb')
+    return img
 
 
 
@@ -78,7 +80,11 @@ def main():
 
     xgb = trainModel(X_train, y_train, X_test, y_test)
 
-    showPicture(xgb, 0)
+    img = showPicture(xgb, 0)
+
+    train_sentence, test_sentence = CodeGenerateXgb.create(img)
+    print(train_sentence)
+    print(test_sentence)
 
 
 
