@@ -256,8 +256,8 @@ def getNewFeature(df_train, df_test):
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
-    # df_train, df_test = ParseData.loadData()
-    df_train, df_test = ParseData.loadOOTData()
+    df_train, df_test = ParseData.loadData()
+    # df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
 
     # df_train['nunNum'] = df_train.isnull().sum(axis=1).tolist()
