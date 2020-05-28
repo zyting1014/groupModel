@@ -52,6 +52,7 @@ def level_tranverse(nodes):
 
 
 def generate_sentance(res):
+    print(res)
     sentence = 'df_train, column_name = GroupFunc.decisionTreeMethod4(df_train'
     for item in res[:7]:
         item = item.split('<')

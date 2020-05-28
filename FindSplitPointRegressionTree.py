@@ -12,6 +12,7 @@ from sklearn.externals.six import StringIO
 import ParseData
 import os
 import CodeGenerateDecisionTree
+import StandardVersion
 
 def train_tree_regressor(data, feature_list=[]):
     print('Fill nan...')
@@ -56,9 +57,17 @@ def show_picture(graph):
 def main():
     # df_train, df_test = ParseData.loadPartData()
     df_train, df_test = ParseData.loadData()
-    feature_list = ['nasrdw_recd_date', 'var_jb_23', 'var_jb_28']
     feature_list = ['nasrdw_recd_date', 'var_jb_43', 'var_jb_94', 'creditlimitamount_4',
                    'var_jb_15', 'var_jb_23', 'creditlimitamount_3', 'var_jb_73', 'var_jb_25', 'var_jb_22']
+    # feature_list = ['querydate', 'nasrdw_recd_date', 'var_jb_43', 'opendate_3', 'var_jb_94', 'opendate_4',
+    #                 'var_jb_23', 'var_jb_15', 'creditlimitamount_4', 'var_jb_73']
+
+    ##################################################
+    # 日期特征处理
+    feature_date = StandardVersion.getFeatureDate(df_train)
+    df_train = StandardVersion.parseDateToInt(df_train, feature_date)
+    df_test = StandardVersion.parseDateToInt(df_test, feature_date)
+    ##################################################
 
     x, dtree = train_tree_regressor(df_train, feature_list)
     graph = make_picture(x, dtree)

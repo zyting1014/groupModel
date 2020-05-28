@@ -4,7 +4,6 @@ from xgboost import XGBClassifier
 import xgboost
 import sys
 import CodeGenerateXgb
-
 '''
     graphiz的view函数中文乱码的问题有待解决,不加view显示正确
 '''
@@ -73,10 +72,20 @@ def main():
 
     feature_categorical = baseline.getFeatureCategorical(df_train)
 
+    ##################################################
+    # 日期特征处理
+    feature_date = baseline.getFeatureDate(df_train)
+    df_train = baseline.parseDateToInt(df_train, feature_date)
+    df_test = baseline.parseDateToInt(df_test, feature_date)
+    ##################################################
+
     importance_list = ['nasrdw_recd_date', 'var_jb_43', 'var_jb_94', 'creditlimitamount_4',
                       'var_jb_15', 'var_jb_23', 'creditlimitamount_3', 'var_jb_73', 'var_jb_25', 'var_jb_22']
 
-    X_train, y_train, X_test, y_test = getTrainTestSample(df_train, df_test, feature_categorical)
+    # importance_list = ['querydate', 'nasrdw_recd_date', 'var_jb_43', 'opendate_3', 'var_jb_94', 'opendate_4',
+    #  'var_jb_23', 'var_jb_15', 'creditlimitamount_4', 'var_jb_73']
+
+    X_train, y_train, X_test, y_test = getTrainTestSampleImportance(df_train, df_test, feature_categorical, importance_list)
 
     xgb = trainModel(X_train, y_train, X_test, y_test)
 

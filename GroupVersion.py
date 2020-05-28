@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import roc_auc_score
 import StandardVersion as baseline
 import ParseData
@@ -148,6 +149,8 @@ def transOnehotToList(df_train, df_test, one_hot_list):
 def trainMultiModel(train_list, test_list, feature_categorical):
     model_list = []
     all_pred = []
+    pred_list = []
+    true_list = []
     for i in range(len(train_list)):
         df_train, df_test = train_list[i], test_list[i]
         print('%d.训练样本%s，测试样本%s' % (i, df_train.shape, df_test.shape))
@@ -160,6 +163,9 @@ def trainMultiModel(train_list, test_list, feature_categorical):
         gbm, y_pred = baseline.trainModel(X_train, y_train, X_test, y_test)
         model_list.append(gbm)
 
+        pred_list.append(y_pred)
+        true_list.append(y_test)
+
         if len(all_pred) == 0:
             all_pred = y_pred
             all_test = y_test
@@ -169,28 +175,30 @@ def trainMultiModel(train_list, test_list, feature_categorical):
 
         print('The auc score is:', roc_auc_score(all_test, all_pred))
 
-    return all_pred, all_test, model_list
+    return all_pred, all_test, model_list, pred_list, true_list
 
 
 def supervised_method(df_train, df_test):
-    import GroupFunc_old
+    import GroupFunc
     column_name = []
     # implement code here
-
 
     return df_train, df_test, column_name
 
 def unsupervised_method(df_train, df_test):
-    import GroupFunc_old
+    import GroupFunc
     column_name = []
     # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, feature_categorical, 4)
     # train_list, test_list = transOnehotToList(df_train, df_test, column_name)
 
     # df_train, df_test, column_name = GroupFunc.getGMMCategoryFeature(df_train, df_test, 2)
 
-    # df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 2)
+    df_train, df_test, column_name = GroupFunc.getGMMNullFeature(df_train, df_test, 4)
 
-    df_train, df_test, column_name = GroupFunc_old.getKmeansNullFeature(df_train, df_test, 2)
+
+    # df_train, df_test, column_name = GroupFunc.getKmeansAllFeature(df_train, df_test, 3)
+
+    # df_train, df_test, column_name = GroupFunc.getKmeansNullFeature(df_train, df_test, 2)
 
     # df_train, df_test, column_name = GroupFunc.nullCountcut(df_train, df_test)
 
@@ -206,38 +214,86 @@ def transSampleToList(df_train, df_test, feature_categorical):
     df_train, df_test, column_name = unsupervised_method(df_train, df_test)
 
     train_list, test_list = transOnehotToList(df_train, df_test, column_name)
-
+    pos_rate_in_each_segment(train_list, test_list)
 
     return train_list, test_list
+
+
+def pos_rate_in_each_segment(train_list, test_list):
+
+    for i in range(len(train_list)):
+        train_sample = train_list[i]
+        test_sample = test_list[i]
+        true_pos_train = train_sample[train_sample['bad'] == 1].shape[0]
+        true_neg_train = train_sample[train_sample['bad'] == 0].shape[0]
+        true_pos_test = test_sample[test_sample['bad'] == 1].shape[0]
+        true_neg_test = test_sample[test_sample['bad'] == 0].shape[0]
+
+        print('在训练实际的样本中，%d为正样本，%d为负样本，正负比例为%f' % (true_pos_train, true_neg_train, (true_pos_train / true_neg_train)))
+        print('在测试实际的样本中，%d为正样本，%d为负样本，正负比例为%f' % (true_pos_test, true_neg_test, (true_pos_test / true_neg_test)))
+
+
+# 分数校正
+def fractional_calibration(pred_list, true_list):
+    new_pred_list = []
+    new_pred = []
+    i = 0
+    for item in zip(pred_list, true_list):
+        pred = item[0].reshape(-1, 1)
+        true = np.array(item[1])
+
+        lg = LinearRegression()
+        model = lg.fit(pred, true)
+        # print(model.coef_)  # 斜率 k
+        # print(model.intercept_)  # 常数b
+        k = str(model.coef_[0])
+        b = '+' + str(model.intercept_) if model.intercept_ > 0 else str(model.intercept_)
+        print('群体%d正在进行分数矫正..矫正式为y=%sx%s' % (i, k, b))
+        i = i + 1
+        pred_ = model.predict(pred)
+
+        new_pred_list.append(pred_)
+
+        if len(new_pred_list) == 0:
+            new_pred = pred_
+        else:
+            new_pred = np.hstack((new_pred, pred_))
+
+    return new_pred, new_pred_list
 
 
 def main():
     # df_train, df_test = ParseData.loadPartData()
     # df_train, df_test = ParseData.loadData()
-    df_train, df_test = ParseData.loadOOTData()
+    # df_train, df_test = ParseData.loadOOTData()
     # df_train, df_test = ParseData.loadOOT15Data()
-    # df_train, df_test = ParseData.loadData_new()
+    df_train, df_test = ParseData.loadData_new()
 
     # ParseData.TYPE = 'OOT_noDate'
 
     ##################################################
     # 日期特征处理
-    # feature_date = baseline.getFeatureDate(df_train)
-    # df_train = baseline.parseDateToInt(df_train, feature_date)
-    # df_test = baseline.parseDateToInt(df_test, feature_date)
-    # # 类别特征处理
-    # df_train, df_test = baseline.CategoryPCA(df_train, df_test, baseline.getFeatureCategorical(df_train))
-    # ##################################################
+    feature_date = baseline.getFeatureDate(df_train)
+    df_train = baseline.parseDateToInt(df_train, feature_date)
+    df_test = baseline.parseDateToInt(df_test, feature_date)
+    # 类别特征处理
+    df_train, df_test = baseline.CategoryPCA(df_train, df_test, baseline.getFeatureCategorical(df_train))
+    ##################################################
 
     feature_categorical = baseline.getFeatureCategorical(df_train)
 
     train_list, test_list = transSampleToList(df_train, df_test, feature_categorical)
 
-    all_pred, all_test, model_list = trainMultiModel(train_list, test_list, feature_categorical)
-    Evaluation.getKsValue(all_test, all_pred)
-    Evaluation.getAucValue(all_test, all_pred)
+    all_pred, all_true, model_list, pred_list, true_list = trainMultiModel(train_list, test_list, feature_categorical)
+
+    new_pred, new_pred_list = fractional_calibration(pred_list, true_list) # 分数校准
+    all_pred = new_pred
+
+    Evaluation.getKsValue(all_true, all_pred)
+    Evaluation.getAucValue(all_true, all_pred)
 
     Evas.main(model_list)
+    Evaluation.get_pos_neg_picture(all_true, all_pred)
 
 
 if __name__ == '__main__':

@@ -43,6 +43,9 @@ def decisionTreeMethod4(data, n1, s1, c1, cs1, c2, cs2, cc1, ccs1, cc2, ccs2, cc
     for i in range(4):
         column_name.append('seg%d' % (i + 1))
 
+    if is_segmentation:
+        data = data.fillna(-99999)
+
     data['seg1'] = 0
     data['seg2'] = 0
     data['seg3'] = 0

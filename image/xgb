@@ -1,347 +1,335 @@
 digraph {
     graph [ rankdir=TB ]
 
-    0 [ label="type_91|个人消费贷款<0.5" ]
-    0 -> 1 [label="yes, missing" color="#0000FF"]
-    0 -> 2 [label="no" color="#FF0000"]
+    0 [ label="creditlimitamount_4<32188.5" ]
+    0 -> 1 [label="no" color="#FF0000"]
+    0 -> 2 [label="yes, missing" color="#0000FF"]
 
-    1 [ label="var_jb_64<13.5" ]
+    1 [ label="nasrdw_recd_date<20181024" ]
     1 -> 3 [label="yes, missing" color="#0000FF"]
     1 -> 4 [label="no" color="#FF0000"]
 
-    3 [ label="var_jb_40<0.5" ]
-    3 -> 7 [label="no" color="#FF0000"]
-    3 -> 8 [label="yes, missing" color="#0000FF"]
+    3 [ label="var_jb_23<39.5" ]
+    3 -> 7 [label="yes, missing" color="#0000FF"]
+    3 -> 8 [label="no" color="#FF0000"]
 
-    7 [ label="var_jb_62_Y<0.5" ]
-    7 -> 15 [label="yes, missing" color="#0000FF"]
-    7 -> 16 [label="no" color="#FF0000"]
+    7 [ label="creditlimitamount_3<9812.5" ]
+    7 -> 15 [label="no" color="#FF0000"]
+    7 -> 16 [label="yes, missing" color="#0000FF"]
 
-    15 [ label="var_jb_30<12.5" ]
-    15 -> 31 [label="yes, missing" color="#0000FF"]
-    15 -> 32 [label="no" color="#FF0000"]
+    15 [ label="var_jb_22<15.5" ]
+    15 -> 31 [label="no" color="#FF0000"]
+    15 -> 32 [label="yes, missing" color="#0000FF"]
 
-    31 [ label="var_jb_1<50.5" ]
-    31 -> 61 [label="no" color="#FF0000"]
-    31 -> 62 [label="yes, missing" color="#0000FF"]
+    31 [ label="var_jb_25<748.5" ]
+    31 -> 59 [label="no" color="#FF0000"]
+    31 -> 60 [label="yes, missing" color="#0000FF"]
 
-    61 [ label="leaf=0.574724376" ]
+    59 [ label="leaf=0.280783355" ]
 
-    62 [ label="leaf=0.408000022" ]
+    60 [ label="leaf=0.193365857" ]
 
-    32 [ label="leaf=-0" ]
+    32 [ label="var_jb_25<478.5" ]
+    32 -> 61 [label="no" color="#FF0000"]
+    32 -> 62 [label="yes, missing" color="#0000FF"]
 
-    16 [ label="leaf=-0" ]
+    61 [ label="leaf=0.388990849" ]
 
-    8 [ label="var_jb_49_毕业<0.5" ]
-    8 -> 17 [label="yes, missing" color="#0000FF"]
-    8 -> 18 [label="no" color="#FF0000"]
+    62 [ label="leaf=0.276928663" ]
 
-    17 [ label="creditlimitamount_4<82515" ]
-    17 -> 33 [label="yes, missing" color="#0000FF"]
-    17 -> 34 [label="no" color="#FF0000"]
+    16 [ label="var_jb_94<572.5" ]
+    16 -> 33 [label="no" color="#FF0000"]
+    16 -> 34 [label="yes, missing" color="#0000FF"]
 
-    33 [ label="var_jb_28<3.5" ]
+    33 [ label="var_jb_23<8.5" ]
     33 -> 63 [label="yes, missing" color="#0000FF"]
     33 -> 64 [label="no" color="#FF0000"]
 
-    63 [ label="leaf=0.418330342" ]
+    63 [ label="leaf=0.299408287" ]
 
-    64 [ label="leaf=0.215559632" ]
+    64 [ label="leaf=0.389395565" ]
 
-    34 [ label="var_jb_20<0.095449999" ]
-    34 -> 65 [label="yes, missing" color="#0000FF"]
-    34 -> 66 [label="no" color="#FF0000"]
+    34 [ label="creditlimitamount_4<5998.5" ]
+    34 -> 65 [label="no" color="#FF0000"]
+    34 -> 66 [label="yes, missing" color="#0000FF"]
 
-    65 [ label="leaf=0.50783962" ]
+    65 [ label="leaf=0.279354095" ]
 
-    66 [ label="leaf=0.419637054" ]
+    66 [ label="leaf=0.335161746" ]
 
-    18 [ label="balance<8029" ]
-    18 -> 35 [label="no" color="#FF0000"]
-    18 -> 36 [label="yes, missing" color="#0000FF"]
+    8 [ label="creditlimitamount_3<8174" ]
+    8 -> 17 [label="no" color="#FF0000"]
+    8 -> 18 [label="yes, missing" color="#0000FF"]
 
-    35 [ label="var_jb_28<4.5" ]
-    35 -> 67 [label="yes, missing" color="#0000FF"]
-    35 -> 68 [label="no" color="#FF0000"]
+    17 [ label="creditlimitamount_4<5570" ]
+    17 -> 35 [label="no" color="#FF0000"]
+    17 -> 36 [label="yes, missing" color="#0000FF"]
 
-    67 [ label="leaf=0.404844314" ]
+    35 [ label="var_jb_15<1028" ]
+    35 -> 67 [label="no" color="#FF0000"]
+    35 -> 68 [label="yes, missing" color="#0000FF"]
 
-    68 [ label="leaf=0.200000018" ]
+    67 [ label="leaf=0.258380115" ]
 
-    36 [ label="var_jb_15<1026" ]
+    68 [ label="leaf=0.359394699" ]
+
+    36 [ label="var_jb_25<1124" ]
     36 -> 69 [label="no" color="#FF0000"]
     36 -> 70 [label="yes, missing" color="#0000FF"]
 
-    69 [ label="leaf=0.553311646" ]
+    69 [ label="leaf=0.428918093" ]
 
-    70 [ label="leaf=0.5028494" ]
+    70 [ label="leaf=0.350467324" ]
 
-    4 [ label="var_jb_20<0.0185000002" ]
-    4 -> 9 [label="no" color="#FF0000"]
-    4 -> 10 [label="yes, missing" color="#0000FF"]
+    18 [ label="var_jb_25<4369.5" ]
+    18 -> 37 [label="no" color="#FF0000"]
+    18 -> 38 [label="yes, missing" color="#0000FF"]
 
-    9 [ label="var_jb_30<1.5" ]
-    9 -> 19 [label="no" color="#FF0000"]
-    9 -> 20 [label="yes, missing" color="#0000FF"]
-
-    19 [ label="var_jb_49_毕业<0.5" ]
-    19 -> 37 [label="yes, missing" color="#0000FF"]
-    19 -> 38 [label="no" color="#FF0000"]
-
-    37 [ label="var_jb_40<0.5" ]
+    37 [ label="creditlimitamount_3<12052.5" ]
     37 -> 71 [label="no" color="#FF0000"]
     37 -> 72 [label="yes, missing" color="#0000FF"]
 
-    71 [ label="leaf=0.582142293" ]
+    71 [ label="leaf=0.407445461" ]
 
-    72 [ label="leaf=0.520320773" ]
+    72 [ label="leaf=0.481065124" ]
 
-    38 [ label="var_jb_28<20.5" ]
+    38 [ label="var_jb_22<76.5" ]
     38 -> 73 [label="no" color="#FF0000"]
     38 -> 74 [label="yes, missing" color="#0000FF"]
 
-    73 [ label="leaf=0.569574893" ]
+    73 [ label="leaf=0.358898252" ]
 
-    74 [ label="leaf=0.13333334" ]
+    74 [ label="leaf=0.418121099" ]
 
-    20 [ label="var_jb_40<0.5" ]
-    20 -> 39 [label="no" color="#FF0000"]
-    20 -> 40 [label="yes, missing" color="#0000FF"]
+    4 [ label="var_jb_94<6" ]
+    4 -> 9 [label="no" color="#FF0000"]
+    4 -> 10 [label="yes, missing" color="#0000FF"]
 
-    39 [ label="mis_date_8<20180208" ]
-    39 -> 75 [label="no" color="#FF0000"]
-    39 -> 76 [label="yes, missing" color="#0000FF"]
+    9 [ label="var_jb_22<151" ]
+    9 -> 19 [label="yes, missing" color="#0000FF"]
+    9 -> 20 [label="no" color="#FF0000"]
 
-    75 [ label="leaf=0.120000005" ]
+    19 [ label="leaf=0.577586234" ]
 
-    76 [ label="leaf=0.576253295" ]
+    20 [ label="leaf=0.150000006" ]
 
-    40 [ label="var_jb_23<34.5" ]
+    10 [ label="var_jb_94<571.5" ]
+    10 -> 21 [label="no" color="#FF0000"]
+    10 -> 22 [label="yes, missing" color="#0000FF"]
+
+    21 [ label="var_jb_94<42.5" ]
+    21 -> 39 [label="no" color="#FF0000"]
+    21 -> 40 [label="yes, missing" color="#0000FF"]
+
+    39 [ label="nasrdw_recd_date<20181118" ]
+    39 -> 75 [label="yes, missing" color="#0000FF"]
+    39 -> 76 [label="no" color="#FF0000"]
+
+    75 [ label="leaf=0.364176035" ]
+
+    76 [ label="leaf=0.44677493" ]
+
+    40 [ label="creditlimitamount_3<8011.5" ]
     40 -> 77 [label="yes, missing" color="#0000FF"]
     40 -> 78 [label="no" color="#FF0000"]
 
-    77 [ label="leaf=0.312741339" ]
+    77 [ label="leaf=0.454545468" ]
 
-    78 [ label="leaf=0.458311081" ]
+    78 [ label="leaf=0.497199923" ]
 
-    10 [ label="var_jb_49_毕业<0.5" ]
-    10 -> 21 [label="yes, missing" color="#0000FF"]
-    10 -> 22 [label="no" color="#FF0000"]
+    22 [ label="var_jb_22<13.5" ]
+    22 -> 41 [label="yes, missing" color="#0000FF"]
+    22 -> 42 [label="no" color="#FF0000"]
 
-    21 [ label="var_jb_24<0.205249995" ]
-    21 -> 41 [label="no" color="#FF0000"]
-    21 -> 42 [label="yes, missing" color="#0000FF"]
-
-    41 [ label="var_jb_40<0.5" ]
+    41 [ label="creditlimitamount_3<8720.5" ]
     41 -> 79 [label="no" color="#FF0000"]
     41 -> 80 [label="yes, missing" color="#0000FF"]
 
-    79 [ label="leaf=0.557970583" ]
+    79 [ label="leaf=0.359045744" ]
 
-    80 [ label="leaf=0.428688407" ]
+    80 [ label="leaf=0.40815562" ]
 
-    42 [ label="var_jb_59<0.5" ]
-    42 -> 81 [label="yes, missing" color="#0000FF"]
-    42 -> 82 [label="no" color="#FF0000"]
+    42 [ label="var_jb_15<1028" ]
+    42 -> 81 [label="no" color="#FF0000"]
+    42 -> 82 [label="yes, missing" color="#0000FF"]
 
-    81 [ label="leaf=0.514979601" ]
+    81 [ label="leaf=0.415108055" ]
 
-    82 [ label="leaf=0.244444445" ]
+    82 [ label="leaf=0.469284385" ]
 
-    22 [ label="var_jb_62_Y<0.5" ]
-    22 -> 43 [label="yes, missing" color="#0000FF"]
-    22 -> 44 [label="no" color="#FF0000"]
+    2 [ label="var_jb_22<13.5" ]
+    2 -> 5 [label="yes, missing" color="#0000FF"]
+    2 -> 6 [label="no" color="#FF0000"]
 
-    43 [ label="var_jb_26<7.5" ]
-    43 -> 83 [label="no" color="#FF0000"]
-    43 -> 84 [label="yes, missing" color="#0000FF"]
+    5 [ label="creditlimitamount_4<80855" ]
+    5 -> 11 [label="yes, missing" color="#0000FF"]
+    5 -> 12 [label="no" color="#FF0000"]
 
-    83 [ label="leaf=0.53978312" ]
-
-    84 [ label="leaf=0.394871831" ]
-
-    44 [ label="var_jb_9<230" ]
-    44 -> 85 [label="no" color="#FF0000"]
-    44 -> 86 [label="yes, missing" color="#0000FF"]
-
-    85 [ label="leaf=-0.13333334" ]
-
-    86 [ label="leaf=0.342857182" ]
-
-    2 [ label="var_jb_40<0.5" ]
-    2 -> 5 [label="no" color="#FF0000"]
-    2 -> 6 [label="yes, missing" color="#0000FF"]
-
-    5 [ label="mis_date_7<20181120" ]
-    5 -> 11 [label="no" color="#FF0000"]
-    5 -> 12 [label="yes, missing" color="#0000FF"]
-
-    11 [ label="balance<3197.5" ]
+    11 [ label="var_jb_94<701" ]
     11 -> 23 [label="no" color="#FF0000"]
     11 -> 24 [label="yes, missing" color="#0000FF"]
 
-    23 [ label="var_jb_26<2.5" ]
-    23 -> 45 [label="yes, missing" color="#0000FF"]
-    23 -> 46 [label="no" color="#FF0000"]
+    23 [ label="creditlimitamount_3<5762.5" ]
+    23 -> 43 [label="no" color="#FF0000"]
+    23 -> 44 [label="yes, missing" color="#0000FF"]
 
-    45 [ label="mis_date_7<20180564" ]
-    45 -> 87 [label="no" color="#FF0000"]
-    45 -> 88 [label="yes, missing" color="#0000FF"]
+    43 [ label="var_jb_25<939.5" ]
+    43 -> 83 [label="yes, missing" color="#0000FF"]
+    43 -> 84 [label="no" color="#FF0000"]
 
-    87 [ label="leaf=0.313548386" ]
+    83 [ label="leaf=0.46595484" ]
 
-    88 [ label="leaf=0.492000014" ]
+    84 [ label="leaf=0.395477384" ]
 
-    46 [ label="usedhighestamount_7<2523" ]
+    44 [ label="var_jb_25<3279.5" ]
+    44 -> 85 [label="yes, missing" color="#0000FF"]
+    44 -> 86 [label="no" color="#FF0000"]
+
+    85 [ label="leaf=0.506831944" ]
+
+    86 [ label="leaf=0.45817849" ]
+
+    24 [ label="var_jb_15<1023" ]
+    24 -> 45 [label="no" color="#FF0000"]
+    24 -> 46 [label="yes, missing" color="#0000FF"]
+
+    45 [ label="var_jb_25<586.5" ]
+    45 -> 87 [label="yes, missing" color="#0000FF"]
+    45 -> 88 [label="no" color="#FF0000"]
+
+    87 [ label="leaf=0.468189985" ]
+
+    88 [ label="leaf=0.357663572" ]
+
+    46 [ label="nasrdw_recd_date<20181024" ]
     46 -> 89 [label="yes, missing" color="#0000FF"]
     46 -> 90 [label="no" color="#FF0000"]
 
-    89 [ label="leaf=-0.0400000028" ]
+    89 [ label="leaf=0.385571808" ]
 
-    90 [ label="leaf=0.271698117" ]
+    90 [ label="leaf=0.435737759" ]
 
-    24 [ label="var_jb_1<54.5" ]
-    24 -> 47 [label="no" color="#FF0000"]
-    24 -> 48 [label="yes, missing" color="#0000FF"]
+    12 [ label="creditlimitamount_4<401000" ]
+    12 -> 25 [label="no" color="#FF0000"]
+    12 -> 26 [label="yes, missing" color="#0000FF"]
 
-    47 [ label="var_jb_26<10.5" ]
+    25 [ label="nasrdw_recd_date<20181024" ]
+    25 -> 47 [label="yes, missing" color="#0000FF"]
+    25 -> 48 [label="no" color="#FF0000"]
+
+    47 [ label="nasrdw_recd_date<20180928" ]
     47 -> 91 [label="yes, missing" color="#0000FF"]
     47 -> 92 [label="no" color="#FF0000"]
 
-    91 [ label="leaf=0.514384389" ]
+    91 [ label="leaf=0.485572875" ]
 
-    92 [ label="leaf=0.157894745" ]
+    92 [ label="leaf=0.39089483" ]
 
-    48 [ label="leaf=-0" ]
+    48 [ label="var_jb_23<207.5" ]
+    48 -> 93 [label="yes, missing" color="#0000FF"]
+    48 -> 94 [label="no" color="#FF0000"]
 
-    12 [ label="var_jb_59<1.5" ]
-    12 -> 25 [label="yes, missing" color="#0000FF"]
-    12 -> 26 [label="no" color="#FF0000"]
+    93 [ label="leaf=0.509898841" ]
 
-    25 [ label="var_jb_25<153722" ]
-    25 -> 49 [label="yes, missing" color="#0000FF"]
-    25 -> 50 [label="no" color="#FF0000"]
+    94 [ label="leaf=-0" ]
 
-    49 [ label="var_jb_96<4.5" ]
-    49 -> 93 [label="yes, missing" color="#0000FF"]
-    49 -> 94 [label="no" color="#FF0000"]
+    26 [ label="var_jb_25<29446" ]
+    26 -> 49 [label="yes, missing" color="#0000FF"]
+    26 -> 50 [label="no" color="#FF0000"]
 
-    93 [ label="leaf=0.577999353" ]
+    49 [ label="var_jb_23<68.5" ]
+    49 -> 95 [label="yes, missing" color="#0000FF"]
+    49 -> 96 [label="no" color="#FF0000"]
 
-    94 [ label="leaf=0.230769247" ]
+    95 [ label="leaf=0.551893532" ]
 
-    50 [ label="leaf=0.163636371" ]
+    96 [ label="leaf=0.489655197" ]
 
-    26 [ label="var_jb_15<1036.5" ]
-    26 -> 51 [label="no" color="#FF0000"]
-    26 -> 52 [label="yes, missing" color="#0000FF"]
+    50 [ label="var_jb_25<29873.5" ]
+    50 -> 97 [label="no" color="#FF0000"]
+    50 -> 98 [label="yes, missing" color="#0000FF"]
 
-    51 [ label="creditlimitamount_3<21000" ]
-    51 -> 95 [label="yes, missing" color="#0000FF"]
-    51 -> 96 [label="no" color="#FF0000"]
+    97 [ label="leaf=-0.0545454584" ]
 
-    95 [ label="leaf=0.517241418" ]
+    98 [ label="leaf=0.442990661" ]
 
-    96 [ label="leaf=0.163636371" ]
-
-    52 [ label="mis_date_7<20181214" ]
-    52 -> 97 [label="no" color="#FF0000"]
-    52 -> 98 [label="yes, missing" color="#0000FF"]
-
-    97 [ label="leaf=-0.24000001" ]
-
-    98 [ label="leaf=0.300000012" ]
-
-    6 [ label="var_jb_28<4.5" ]
+    6 [ label="creditlimitamount_4<245020" ]
     6 -> 13 [label="yes, missing" color="#0000FF"]
     6 -> 14 [label="no" color="#FF0000"]
 
-    13 [ label="latest5yearoverduebeginmonth_4<2015.06494" ]
-    13 -> 27 [label="yes, missing" color="#0000FF"]
-    13 -> 28 [label="no" color="#FF0000"]
+    13 [ label="var_jb_94<665.5" ]
+    13 -> 27 [label="no" color="#FF0000"]
+    13 -> 28 [label="yes, missing" color="#0000FF"]
 
-    27 [ label="actualpaymentamount_4<1454.5" ]
-    27 -> 53 [label="no" color="#FF0000"]
-    27 -> 54 [label="yes, missing" color="#0000FF"]
+    27 [ label="nasrdw_recd_date<20181122" ]
+    27 -> 51 [label="yes, missing" color="#0000FF"]
+    27 -> 52 [label="no" color="#FF0000"]
 
-    53 [ label="var_jb_49_毕业<0.5" ]
-    53 -> 99 [label="yes, missing" color="#0000FF"]
-    53 -> 100 [label="no" color="#FF0000"]
+    51 [ label="var_jb_25<4799.5" ]
+    51 -> 99 [label="no" color="#FF0000"]
+    51 -> 100 [label="yes, missing" color="#0000FF"]
 
-    99 [ label="leaf=0.307633549" ]
+    99 [ label="leaf=0.527275264" ]
 
-    100 [ label="leaf=0.460975617" ]
+    100 [ label="leaf=0.489847213" ]
 
-    54 [ label="var_jb_49_毕业<0.5" ]
-    54 -> 101 [label="yes, missing" color="#0000FF"]
-    54 -> 102 [label="no" color="#FF0000"]
+    52 [ label="var_jb_94<5" ]
+    52 -> 101 [label="no" color="#FF0000"]
+    52 -> 102 [label="yes, missing" color="#0000FF"]
 
-    101 [ label="leaf=0.422797948" ]
+    101 [ label="leaf=0.589467943" ]
 
-    102 [ label="leaf=0.523340046" ]
+    102 [ label="leaf=0.534780025" ]
 
-    28 [ label="var_jb_22<6.5" ]
-    28 -> 55 [label="no" color="#FF0000"]
-    28 -> 56 [label="yes, missing" color="#0000FF"]
+    28 [ label="nasrdw_recd_date<20181024" ]
+    28 -> 53 [label="yes, missing" color="#0000FF"]
+    28 -> 54 [label="no" color="#FF0000"]
 
-    55 [ label="var_jb_5_F<0.5" ]
-    55 -> 103 [label="yes, missing" color="#0000FF"]
-    55 -> 104 [label="no" color="#FF0000"]
+    53 [ label="nasrdw_recd_date<20180928" ]
+    53 -> 103 [label="yes, missing" color="#0000FF"]
+    53 -> 104 [label="no" color="#FF0000"]
 
-    103 [ label="leaf=-0.223693401" ]
+    103 [ label="leaf=0.479942113" ]
 
-    104 [ label="leaf=-0.0336000025" ]
+    104 [ label="leaf=0.383096248" ]
 
-    56 [ label="creditlimitamount_4<5726" ]
-    56 -> 105 [label="no" color="#FF0000"]
-    56 -> 106 [label="yes, missing" color="#0000FF"]
+    54 [ label="var_jb_25<4532.5" ]
+    54 -> 105 [label="no" color="#FF0000"]
+    54 -> 106 [label="yes, missing" color="#0000FF"]
 
-    105 [ label="leaf=0.0654343814" ]
+    105 [ label="leaf=0.525075555" ]
 
-    106 [ label="leaf=0.400000036" ]
+    106 [ label="leaf=0.489195645" ]
 
-    14 [ label="mis_date_7<20181010" ]
-    14 -> 29 [label="yes, missing" color="#0000FF"]
-    14 -> 30 [label="no" color="#FF0000"]
+    14 [ label="creditlimitamount_4<505500" ]
+    14 -> 29 [label="no" color="#FF0000"]
+    14 -> 30 [label="yes, missing" color="#0000FF"]
 
-    29 [ label="creditlimitamount_4<15257" ]
-    29 -> 57 [label="no" color="#FF0000"]
-    29 -> 58 [label="yes, missing" color="#0000FF"]
+    29 [ label="var_jb_22<63.5" ]
+    29 -> 55 [label="no" color="#FF0000"]
+    29 -> 56 [label="yes, missing" color="#0000FF"]
 
-    57 [ label="var_jb_59<0.5" ]
-    57 -> 107 [label="yes, missing" color="#0000FF"]
-    57 -> 108 [label="no" color="#FF0000"]
+    55 [ label="var_jb_25<6443" ]
+    55 -> 107 [label="no" color="#FF0000"]
+    55 -> 108 [label="yes, missing" color="#0000FF"]
 
-    107 [ label="leaf=0.140109509" ]
+    107 [ label="leaf=0.539909005" ]
 
-    108 [ label="leaf=-0.206722707" ]
+    108 [ label="leaf=0.505604267" ]
 
-    58 [ label="var_jb_28<8.5" ]
-    58 -> 109 [label="no" color="#FF0000"]
-    58 -> 110 [label="yes, missing" color="#0000FF"]
+    56 [ label="var_jb_43<20180326" ]
+    56 -> 109 [label="no" color="#FF0000"]
+    56 -> 110 [label="yes, missing" color="#0000FF"]
 
-    109 [ label="leaf=0.342159539" ]
+    109 [ label="leaf=0.150000006" ]
 
-    110 [ label="leaf=0.179052368" ]
+    110 [ label="leaf=0.546279967" ]
 
-    30 [ label="var_jb_59<0.5" ]
-    30 -> 59 [label="yes, missing" color="#0000FF"]
-    30 -> 60 [label="no" color="#FF0000"]
+    30 [ label="creditlimitamount_3<490585" ]
+    30 -> 57 [label="yes, missing" color="#0000FF"]
+    30 -> 58 [label="no" color="#FF0000"]
 
-    59 [ label="var_jb_49_毕业<0.5" ]
-    59 -> 111 [label="yes, missing" color="#0000FF"]
-    59 -> 112 [label="no" color="#FF0000"]
+    57 [ label="leaf=0.558743596" ]
 
-    111 [ label="leaf=0.307201743" ]
-
-    112 [ label="leaf=0.418336898" ]
-
-    60 [ label="var_jb_23<43.5" ]
-    60 -> 113 [label="no" color="#FF0000"]
-    60 -> 114 [label="yes, missing" color="#0000FF"]
-
-    113 [ label="leaf=-0.224242434" ]
-
-    114 [ label="leaf=0.0757281631" ]
+    58 [ label="leaf=0.150000006" ]
 }

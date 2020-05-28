@@ -24,7 +24,7 @@ def generate_tree_structure(feature_list, feature, children_left, children_right
     for i in range(500):
         nodes.append(Node.Node(-1))
 
-    for i in range(len(feature_list)):
+    for i in range(len(feature)):
         left = children_left[i]
         right = children_right[i]
         num = threshold[i]
